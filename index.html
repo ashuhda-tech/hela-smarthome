@@ -7,16 +7,18 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            /* Paleta Dark Pink And Purple Pastels */
-            --bg-color: #3a214d;         /* Roxo mais escuro (Fundo principal) */
-            --card-bg: #583268;          /* Roxo médio (Cards e painéis) */
-            --card-hover: #734681;       /* Roxo claro (Hover e chips) */
-            --accent-dark: #d0386a;      /* Rosa escuro (Bordas e destaques fortes) */
-            --accent-med: #f05a8b;       /* Rosa médio (Indicadores e gráficos) */
-            --accent-light: #ff82b2;     /* Rosa claro (Textos secundários e ícones) */
+            /* Nova cor adicionada a pedido: Dark Grey como cor primária de fundo */
+            --bg-color: #1a1c20;         
             
-            --text-main: #ffffff;        /* Branco para legibilidade no escuro */
-            --text-muted: var(--accent-light);
+            /* Paleta baseada na imagem enviada (priorizando os tons escuros) */
+            --card-bg: #070b14;          /* Azul super escuro/preto para fundo de cards */
+            --card-hover: #111827;       /* Azul marinho escuro para hover e chips */
+            --card-border: #1f2937;      /* Cinza/azul ardósia para bordas */
+            --accent-dark: #d1b38b;      /* Areia/Dourado escuro para destaques primários */
+            --accent-light: #f4e9d8;     /* Creme/Bege para textos e valores de destaque */
+            
+            --text-main: #f4e9d8;        
+            --text-muted: #d1b38b;
             --border-radius: 10px;
         }
 
@@ -38,7 +40,7 @@
             margin: 0 0 15px 0;
             font-size: 2.5em;
             color: var(--text-main);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
         .system-status {
@@ -51,8 +53,8 @@
             padding: 15px;
             border-radius: var(--border-radius);
             margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            border: 1px solid var(--accent-dark);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 1px solid var(--card-border);
         }
 
         .status-badge {
@@ -66,8 +68,8 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: var(--accent-med);
-            box-shadow: 0 0 8px var(--accent-med);
+            background-color: var(--accent-dark);
+            box-shadow: 0 0 8px var(--accent-dark);
         }
 
         /* --- Seleção de Espécie e Cabeçalho de Info --- */
@@ -76,11 +78,11 @@
             background: var(--card-bg);
             padding: 20px;
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             margin-bottom: 30px;
             gap: 25px;
             align-items: flex-start;
-            border: 1px solid var(--accent-dark);
+            border: 1px solid var(--card-border);
         }
 
         .species-image-wrapper {
@@ -93,7 +95,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid var(--card-hover);
+            border: 2px solid var(--card-border);
         }
 
         .species-image-wrapper img {
@@ -117,7 +119,7 @@
             font-size: 16px;
             background-color: var(--bg-color);
             color: var(--text-main);
-            border: 1px solid var(--accent-med);
+            border: 1px solid var(--card-border);
             border-radius: 6px;
             outline: none;
         }
@@ -141,7 +143,7 @@
             border-radius: 20px;
             font-weight: 600;
             font-size: 0.9em;
-            border: 1px solid var(--accent-dark);
+            border: 1px solid var(--card-border);
         }
 
         /* --- Cards de Propriedades Físicas --- */
@@ -156,17 +158,17 @@
             background: var(--card-bg);
             padding: 25px 20px;
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             text-align: center;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid var(--accent-dark);
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            border: 1px solid var(--card-border);
         }
 
         .data-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.4);
-            border-bottom: 3px solid var(--accent-light);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+            border-bottom: 3px solid var(--accent-dark);
             background: var(--card-hover);
         }
 
@@ -179,7 +181,7 @@
         .data-card .value {
             font-size: 2em;
             font-weight: bold;
-            color: var(--text-main);
+            color: var(--accent-light);
             margin: 0;
         }
 
@@ -189,8 +191,8 @@
         }
 
         .bio-card {
-            background: linear-gradient(135deg, var(--card-bg) 0%, var(--bg-color) 100%);
-            border: 1px solid var(--accent-med);
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-hover) 100%);
+            border: 1px solid var(--card-border);
         }
 
         .bio-grid {
@@ -205,7 +207,7 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            border: 1px solid var(--card-hover);
+            border: 1px solid var(--card-border);
         }
 
         .bio-data-point span {
@@ -219,7 +221,7 @@
 
         .bio-data-point strong {
             font-size: 1.2em;
-            color: var(--text-main);
+            color: var(--accent-light);
         }
 
         /* --- Modais (Tela Cheia) --- */
@@ -230,7 +232,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.9);
             z-index: 1000;
             backdrop-filter: blur(5px);
             overflow-y: auto;
@@ -246,8 +248,8 @@
             padding: 30px;
             position: relative;
             box-sizing: border-box;
-            border: 2px solid var(--accent-dark);
-            box-shadow: 0 0 20px rgba(208, 56, 106, 0.2);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
 
         .close-modal {
@@ -272,7 +274,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--card-hover);
+            border: 1px solid var(--card-border);
             margin-top: 20px;
         }
 
@@ -287,8 +289,8 @@
             background: var(--card-bg);
             padding: 20px;
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            border: 1px solid var(--accent-dark);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 1px solid var(--card-border);
             height: 400px;
         }
     </style>
@@ -355,7 +357,7 @@
 
         <div class="bio-card-container">
             <div class="data-card bio-card" onclick="abrirModalBioDados()">
-                <h3 style="font-size: 1.5em; color: var(--text-main); border-bottom: 2px solid var(--accent-dark); padding-bottom: 10px;">Bio-Dados Hela</h3>
+                <h3 style="font-size: 1.5em; color: var(--accent-light); border-bottom: 2px solid var(--card-border); padding-bottom: 10px;">Bio-Dados Hela</h3>
                 <div class="bio-grid">
                     <div class="bio-data-point">
                         <span>Última Alimentação</span>
@@ -370,7 +372,7 @@
                         <strong>20/02/2026</strong> <br> Status: Completa
                     </div>
                 </div>
-                <p style="margin-top: 15px; font-size: 0.9em; color: var(--accent-light);">Clique para expandir gráficos históricos</p>
+                <p style="margin-top: 15px; font-size: 0.9em; color: var(--accent-dark);">Clique para expandir gráficos históricos</p>
             </div>
         </div>
     </div>
@@ -378,7 +380,7 @@
     <div id="modalThingSpeak" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal" onclick="fecharModal('modalThingSpeak')">&times;</span>
-            <h2 id="tituloModalThingSpeak" style="color: var(--text-main);">Série Histórica</h2>
+            <h2 id="tituloModalThingSpeak" style="color: var(--accent-light);">Série Histórica</h2>
             <div class="iframe-container">
                 <p style="color: var(--text-muted); font-size: 1.2em;">[ Área reservada para o Iframe do ThingSpeak correspondente ]</p>
             </div>
@@ -388,7 +390,7 @@
     <div id="modalBioDados" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal" onclick="fecharModal('modalBioDados')">&times;</span>
-            <h2 style="color: var(--text-main);">Séries Históricas - Bio-Dados Hela</h2>
+            <h2 style="color: var(--accent-light);">Séries Históricas - Bio-Dados Hela</h2>
             
             <div class="charts-container">
                 <div class="chart-box">
@@ -477,9 +479,9 @@
         }
 
         function renderizarGraficosBioDados() {
-            // Configurações globais de cor do Chart.js para o tema escuro
-            Chart.defaults.color = '#ff82b2';
-            Chart.defaults.borderColor = 'rgba(255, 130, 178, 0.2)';
+            // Configurações globais de cor do Chart.js para a nova paleta escurecida
+            Chart.defaults.color = '#f4e9d8';
+            Chart.defaults.borderColor = 'rgba(244, 233, 216, 0.1)';
 
             const datasEixoX = ['01/01', '15/01', '01/02', '15/02', '01/03', '10/03'];
             
@@ -491,8 +493,8 @@
                     datasets: [{
                         label: 'Pesagem do Alimento (g)',
                         data: [35, 38, 40, 42, 45, 45],
-                        backgroundColor: 'rgba(208, 56, 106, 0.7)', // --accent-dark
-                        borderColor: '#d0386a',
+                        backgroundColor: 'rgba(209, 179, 139, 0.7)', // Cor areia com opacidade
+                        borderColor: '#d1b38b',
                         borderWidth: 1
                     }]
                 },
@@ -507,8 +509,8 @@
                     datasets: [{
                         label: 'Pesagem do Animal (g)',
                         data: [750, 775, 800, 815, 835, 850],
-                        backgroundColor: 'rgba(240, 90, 139, 0.2)', // --accent-med
-                        borderColor: '#f05a8b',
+                        backgroundColor: 'rgba(244, 233, 216, 0.15)', // Cor creme com opacidade
+                        borderColor: '#f4e9d8',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.3
@@ -528,10 +530,10 @@
                     datasets: [{
                         label: 'Dias de intervalo - Troca de Pele',
                         data: diasEntreTrocasY,
-                        backgroundColor: 'rgba(255, 130, 178, 0.2)', // --accent-light
-                        borderColor: '#ff82b2',
+                        backgroundColor: 'rgba(209, 179, 139, 0.2)', 
+                        borderColor: '#d1b38b',
                         borderWidth: 2,
-                        pointBackgroundColor: '#ff82b2',
+                        pointBackgroundColor: '#d1b38b',
                         pointRadius: 6,
                         stepped: true
                     }]
@@ -539,7 +541,7 @@
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Dias de Intervalo', color: '#ff82b2' } } }
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Dias de Intervalo', color: '#d1b38b' } } }
                 }
             });
         }
