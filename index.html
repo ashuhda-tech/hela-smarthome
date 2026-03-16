@@ -7,11 +7,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-main: #333333;
-            --text-muted: #666666;
-            --accent: #4caf50;
+            /* Paleta Dark Pink And Purple Pastels */
+            --bg-color: #3a214d;         /* Roxo mais escuro (Fundo principal) */
+            --card-bg: #583268;          /* Roxo médio (Cards e painéis) */
+            --card-hover: #734681;       /* Roxo claro (Hover e chips) */
+            --accent-dark: #d0386a;      /* Rosa escuro (Bordas e destaques fortes) */
+            --accent-med: #f05a8b;       /* Rosa médio (Indicadores e gráficos) */
+            --accent-light: #ff82b2;     /* Rosa claro (Textos secundários e ícones) */
+            
+            --text-main: #ffffff;        /* Branco para legibilidade no escuro */
+            --text-muted: var(--accent-light);
             --border-radius: 10px;
         }
 
@@ -32,7 +37,8 @@
         .page-header h1 {
             margin: 0 0 15px 0;
             font-size: 2.5em;
-            color: #2c3e50;
+            color: var(--text-main);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .system-status {
@@ -40,11 +46,13 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 20px;
-            background: #2c3e50;
-            color: white;
+            background: var(--card-bg);
+            color: var(--text-main);
             padding: 15px;
             border-radius: var(--border-radius);
             margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            border: 1px solid var(--accent-dark);
         }
 
         .status-badge {
@@ -58,8 +66,8 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
+            background-color: var(--accent-med);
+            box-shadow: 0 0 8px var(--accent-med);
         }
 
         /* --- Seleção de Espécie e Cabeçalho de Info --- */
@@ -68,10 +76,11 @@
             background: var(--card-bg);
             padding: 20px;
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             margin-bottom: 30px;
             gap: 25px;
             align-items: flex-start;
+            border: 1px solid var(--accent-dark);
         }
 
         .species-image-wrapper {
@@ -80,17 +89,18 @@
             height: 200px;
             border-radius: var(--border-radius);
             overflow: hidden;
-            background: #e9ecef;
+            background: var(--bg-color);
             display: flex;
             align-items: center;
             justify-content: center;
+            border: 2px solid var(--card-hover);
         }
 
         .species-image-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: none; /* Oculto até seleção */
+            display: none; 
         }
 
         .species-details {
@@ -105,26 +115,33 @@
             max-width: 400px;
             padding: 12px;
             font-size: 16px;
-            border: 1px solid #ccc;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            border: 1px solid var(--accent-med);
             border-radius: 6px;
             outline: none;
+        }
+        
+        select option {
+            background-color: var(--bg-color);
+            color: var(--text-main);
         }
 
         .species-parameters {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
-            display: none; /* Oculto até seleção */
+            display: none; 
         }
 
         .param-chip {
-            background: #e3f2fd;
-            color: #1565c0;
+            background: var(--card-hover);
+            color: var(--text-main);
             padding: 10px 15px;
             border-radius: 20px;
             font-weight: 600;
             font-size: 0.9em;
-            border: 1px solid #bbdefb;
+            border: 1px solid var(--accent-dark);
         }
 
         /* --- Cards de Propriedades Físicas --- */
@@ -139,16 +156,18 @@
             background: var(--card-bg);
             padding: 25px 20px;
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             text-align: center;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--accent-dark);
         }
 
         .data-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-            border-bottom: 3px solid var(--accent);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.4);
+            border-bottom: 3px solid var(--accent-light);
+            background: var(--card-hover);
         }
 
         .data-card h3 {
@@ -170,8 +189,8 @@
         }
 
         .bio-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border: 1px solid #dee2e6;
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--bg-color) 100%);
+            border: 1px solid var(--accent-med);
         }
 
         .bio-grid {
@@ -182,11 +201,11 @@
         }
 
         .bio-data-point {
-            background: #fff;
+            background: var(--bg-color);
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            border: 1px solid #f1f3f5;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            border: 1px solid var(--card-hover);
         }
 
         .bio-data-point span {
@@ -200,7 +219,7 @@
 
         .bio-data-point strong {
             font-size: 1.2em;
-            color: #2c3e50;
+            color: var(--text-main);
         }
 
         /* --- Modais (Tela Cheia) --- */
@@ -227,6 +246,8 @@
             padding: 30px;
             position: relative;
             box-sizing: border-box;
+            border: 2px solid var(--accent-dark);
+            box-shadow: 0 0 20px rgba(208, 56, 106, 0.2);
         }
 
         .close-modal {
@@ -234,24 +255,24 @@
             top: 20px;
             right: 30px;
             font-size: 40px;
-            color: #333;
+            color: var(--text-muted);
             cursor: pointer;
             line-height: 1;
         }
 
         .close-modal:hover {
-            color: #e74c3c;
+            color: var(--accent-light);
         }
 
         .iframe-container {
             width: 100%;
             height: 70vh;
-            background: #fff;
+            background: var(--card-bg);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid #ddd;
+            border: 1px solid var(--card-hover);
             margin-top: 20px;
         }
 
@@ -263,10 +284,11 @@
         }
 
         .chart-box {
-            background: #fff;
+            background: var(--card-bg);
             padding: 20px;
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            border: 1px solid var(--accent-dark);
             height: 400px;
         }
     </style>
@@ -287,7 +309,7 @@
     <div class="species-container">
         <div class="species-image-wrapper">
             <img id="imgEspecie" src="" alt="Imagem da Espécie">
-            <span id="imgPlaceholder" style="color: #999;">Sem Imagem</span>
+            <span id="imgPlaceholder" style="color: var(--text-muted);">Sem Imagem</span>
         </div>
         
         <div class="species-details">
@@ -333,7 +355,7 @@
 
         <div class="bio-card-container">
             <div class="data-card bio-card" onclick="abrirModalBioDados()">
-                <h3 style="font-size: 1.5em; color: #2c3e50; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">Bio-Dados Hela</h3>
+                <h3 style="font-size: 1.5em; color: var(--text-main); border-bottom: 2px solid var(--accent-dark); padding-bottom: 10px;">Bio-Dados Hela</h3>
                 <div class="bio-grid">
                     <div class="bio-data-point">
                         <span>Última Alimentação</span>
@@ -348,7 +370,7 @@
                         <strong>20/02/2026</strong> <br> Status: Completa
                     </div>
                 </div>
-                <p style="margin-top: 15px; font-size: 0.9em; color: var(--accent);">Clique para expandir gráficos históricos</p>
+                <p style="margin-top: 15px; font-size: 0.9em; color: var(--accent-light);">Clique para expandir gráficos históricos</p>
             </div>
         </div>
     </div>
@@ -356,9 +378,9 @@
     <div id="modalThingSpeak" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal" onclick="fecharModal('modalThingSpeak')">&times;</span>
-            <h2 id="tituloModalThingSpeak">Série Histórica</h2>
+            <h2 id="tituloModalThingSpeak" style="color: var(--text-main);">Série Histórica</h2>
             <div class="iframe-container">
-                <p style="color: #666; font-size: 1.2em;">[ Área reservada para o Iframe do ThingSpeak correspondente ]</p>
+                <p style="color: var(--text-muted); font-size: 1.2em;">[ Área reservada para o Iframe do ThingSpeak correspondente ]</p>
             </div>
         </div>
     </div>
@@ -366,7 +388,7 @@
     <div id="modalBioDados" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal" onclick="fecharModal('modalBioDados')">&times;</span>
-            <h2>Séries Históricas - Bio-Dados Hela</h2>
+            <h2 style="color: var(--text-main);">Séries Históricas - Bio-Dados Hela</h2>
             
             <div class="charts-container">
                 <div class="chart-box">
@@ -383,7 +405,6 @@
     </div>
 
     <script>
-        // --- Base de Dados Simulada das Espécies ---
         const bancoEspecies = {
             "python_regius": {
                 imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Python_regius.jpg/800px-Python_regius.jpg",
@@ -401,7 +422,6 @@
             }
         };
 
-        // --- Lógica de Seleção de Espécie ---
         function atualizarEspecie() {
             const select = document.getElementById("seletorEspecie");
             const chaveEspecie = select.value;
@@ -412,12 +432,10 @@
             if (chaveEspecie && bancoEspecies[chaveEspecie]) {
                 const dados = bancoEspecies[chaveEspecie];
                 
-                // Atualiza Imagem
                 imgEl.src = dados.imgUrl;
                 imgEl.style.display = "block";
                 imgPlaceholder.style.display = "none";
 
-                // Atualiza Parâmetros
                 document.getElementById("valTempMin").innerText = dados.tMin;
                 document.getElementById("valTempMax").innerText = dados.tMax;
                 document.getElementById("valUmidArMin").innerText = dados.uaMin;
@@ -426,7 +444,6 @@
                 document.getElementById("valUmidSoloMin").innerText = dados.usMin;
                 document.getElementById("valUmidSoloMax").innerText = dados.usMax;
 
-                // Mostra a barra de parâmetros
                 divParams.style.display = "flex";
             } else {
                 imgEl.style.display = "none";
@@ -435,7 +452,6 @@
             }
         }
 
-        // --- Lógica dos Modais ---
         function abrirModalThingSpeak(titulo) {
             document.getElementById("tituloModalThingSpeak").innerText = "Série Histórica - " + titulo;
             document.getElementById("modalThingSpeak").style.display = "block";
@@ -454,46 +470,45 @@
             document.getElementById(idModal).style.display = "none";
         }
 
-        // Fechar modal ao clicar na área escura
         window.onclick = function(event) {
             if (event.target.classList.contains("modal-overlay")) {
                 event.target.style.display = "none";
             }
         }
 
-        // --- Lógica de Renderização dos Gráficos (Chart.js) ---
         function renderizarGraficosBioDados() {
-            // Dados simulados oriundos da planilha Excel
+            // Configurações globais de cor do Chart.js para o tema escuro
+            Chart.defaults.color = '#ff82b2';
+            Chart.defaults.borderColor = 'rgba(255, 130, 178, 0.2)';
+
             const datasEixoX = ['01/01', '15/01', '01/02', '15/02', '01/03', '10/03'];
             
-            // 1. Gráfico de Alimentação
             const ctxAlim = document.getElementById('graficoAlimentacao').getContext('2d');
             new Chart(ctxAlim, {
                 type: 'bar',
                 data: {
                     labels: datasEixoX,
                     datasets: [{
-                        label: 'Pesagem do Alimento (g) - Evento: Alimentação',
+                        label: 'Pesagem do Alimento (g)',
                         data: [35, 38, 40, 42, 45, 45],
-                        backgroundColor: 'rgba(76, 175, 80, 0.6)',
-                        borderColor: 'rgba(76, 175, 80, 1)',
+                        backgroundColor: 'rgba(208, 56, 106, 0.7)', // --accent-dark
+                        borderColor: '#d0386a',
                         borderWidth: 1
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // 2. Gráfico de Pesagem do Animal
             const ctxPesagem = document.getElementById('graficoPesagem').getContext('2d');
             new Chart(ctxPesagem, {
                 type: 'line',
                 data: {
                     labels: datasEixoX,
                     datasets: [{
-                        label: 'Pesagem do Animal (g) - Evento: Pesagem',
+                        label: 'Pesagem do Animal (g)',
                         data: [750, 775, 800, 815, 835, 850],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(240, 90, 139, 0.2)', // --accent-med
+                        borderColor: '#f05a8b',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.3
@@ -502,10 +517,8 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // 3. Gráfico de Troca de Pele
-            // Eixo Y = Número de dias entre a última troca e o registro
             const datasPeleX = ['15/10/2025', '20/12/2025', '20/02/2026'];
-            const diasEntreTrocasY = [55, 66, 62]; // Quantos dias demorou para trocar
+            const diasEntreTrocasY = [55, 66, 62];
 
             const ctxPele = document.getElementById('graficoPele').getContext('2d');
             new Chart(ctxPele, {
@@ -513,12 +526,12 @@
                 data: {
                     labels: datasPeleX,
                     datasets: [{
-                        label: 'Dias de intervalo - Evento: Troca de Pele',
+                        label: 'Dias de intervalo - Troca de Pele',
                         data: diasEntreTrocasY,
-                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                        borderColor: 'rgba(153, 102, 255, 1)',
+                        backgroundColor: 'rgba(255, 130, 178, 0.2)', // --accent-light
+                        borderColor: '#ff82b2',
                         borderWidth: 2,
-                        pointBackgroundColor: 'rgba(153, 102, 255, 1)',
+                        pointBackgroundColor: '#ff82b2',
                         pointRadius: 6,
                         stepped: true
                     }]
@@ -526,7 +539,7 @@
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Dias de Intervalo' } } }
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Dias de Intervalo', color: '#ff82b2' } } }
                 }
             });
         }
