@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hela SmartHome | Dashboard Pro</title>
+    <style>
+        /* Proporções baseadas na imagem de referência */
+        :root {
+            --bg: #1c2023;        /* Cor 1: Fundo predominante (Escuro) */
+            --card: #2e4052;      /* Cor 2: Azul Petróleo escuro para cards */
+            --text-muted: #91a1ab;/* Cor 4: Cinza claro para legendas */
+            --text: #ffffff;      /* Branco para leitura */
+            --accent: #9a8b51;    /* Cor 5: Ocre para botões e destaques */
+            --danger: #ef4444;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .top-container { width: 100%; max-width: 1200px; text-align: center; margin-bottom: 20px; }
+        .system-status { font-size: 0.75em; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; }
+        
+        /* Controles no Topo */
+        .header-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; border: 1px solid #3e474f; margin-bottom: 25px; }
+        
+        select { background: var(--bg); color: var(--accent); border: 1px solid var(--accent); padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; outline: none; min-width: 200px; }
+        
+        .btn-log { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.75em; transition: 0.3s; }
+        .btn-log:hover { background: var(--accent); color: var(--bg); }
+
+        /* Grid */
+        .main-layout { display: grid; grid-template-columns: 1fr 350px; gap: 20px; width: 100%; max-width: 1200px; }
+        .sensor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
+        
+        .card { background: var(--card); border-radius: 10px; padding: 25px; border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; cursor: pointer; position: relative; }
+        .card:hover { border-color: var(--accent); background: #354a5e; }
+        
+        .label { font-size: 0.7em; color: var(--text-muted); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .value { font-size: 2.5em; font-weight: bold; display: block; margin: 10px 0; color: #fff; }
+        .sub-label { font-size: 0.75em; color: var(--accent); font-style: italic; opacity: 0.8; }
+
+        /* Bio-Dados Específico */
+        .bio-card { border-left: 4px solid var(--accent); }
+        .bio-item { margin-bottom: 8px; font-size: 1.1em; }
+
+        /* Modal */
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--bg); width: 95%; max-width: 900px; border-radius: 12px; padding: 20px; border: 1px solid var(--accent); position: relative; }
+        iframe { width: 100%; height: 500px; border: none; border-radius: 4px; }
+
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 15px; color: var(--text-muted); }
+        .history-table th { color: var(--accent); text-align: left; padding: 12px; border-bottom: 1px solid var(--accent); font-size: 0.8em; text-transform: uppercase; }
+        .history-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9em; }
+
+        @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="top-container">
+        <h1 style="margin: 0; letter-spacing: -1px;">HELA <span style="color:var(--accent)">SMARTHOME</span></h1>
+        <div class="system-status" id="sys-status">Verificando sensores...</div>
+
+        <div class="header-controls">
+            <select id="speciesSelect" onchange="updateDashboard()">
+                <option value="">Carregando espécies...</option>
+            </select>
+            <button class="btn-log" onclick="openExcelHistory('Alimentação')">🥩 Log Alimentação</button>
+            <button class="btn-log" onclick="openExcelHistory('Pesagem')">⚖️ Log Pesagem</button>
+            <button class="btn-log" onclick="openExcelHistory('Troca de Pele')">🐍 Troca de Pele</button>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <div class="sensor-grid">
+            <div class="card" onclick="openHistory(1, 'Temperatura Ar')">
+                <span class="label">Temperatura Ar</span>
+                <span class="value" id="f1">--</span>
+                <span class="sub-label">Histórico ThingSpeak</span>
+            </div>
+            <div class="card" onclick="openHistory(2, 'Umidade Ar')">
+                <span class="label">Umidade Ar</span>
+                <span class="value" id="f2">--</span>
+                <span class="sub-label">Histórico ThingSpeak</span>
+            </div>
+            <div class="card" onclick="openHistory(3, 'Umidade Solo')">
+                <span class="label">Umidade Solo</span>
+                <span class="value" id="f3">--</span>
+                <span class="sub-label">Histórico ThingSpeak</span>
+            </div>
+            <div class="card" onclick="openHistory(5, 'CO2')">
+                <span class="label">CO2</span>
+                <span class="value" id="f5">--</span>
+                <span class="sub-label">Qualidade do Ar</span>
+            </div>
+
+            <div class="card bio-card" onclick="openExcelHistory('Bio-Dados Completos')">
+                <span class="label" style="color: var(--accent)">Bio-Dados Hela</span>
+                <div style="margin-top:15px;">
+                    <div class="bio-item">⚖️ Peso: <strong id="hela-peso">--</strong></div>
+                    <div class="bio-item">📏 Comprimento: <strong id="hela-comp">--</strong></div>
+                </div>
+                <span class="sub-label" id="hela-status">Aguardando planilha...</span>
+            </div>
+        </div>
+
+        <div style="background: #000; border-radius: 10px; height: 450px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="text-align: center;">
+                <div style="color: var(--danger); font-size: 0.7em; font-weight: bold; margin-bottom: 10px;">● OFFLINE</div>
+                <span style="color: #475569; font-size: 0.8em; letter-spacing: 1px;">STREAMING INDISPONÍVEL</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 id="modal-title" style="margin:0; color:var(--accent); font-size: 1.2em;">HISTÓRICO</h2>
+                <button class="btn-log" onclick="closeModal()">FECHAR [X]</button>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        const channelID = '3063889';
+        const urlHela = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQPIj53K6S1tfQLEssozqH55iGwWS0fHNft4fcf8CSzkmU0ZBqdSCYI8m30T_rkhg/pub?gid=1486357435&single=true&output=csv';
+        const urlEspecies = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQPIj53K6S1tfQLEssozqH55iGwWS0fHNft4fcf8CSzkmU0ZBqdSCYI8m30T_rkhg/pub?gid=1184403882&single=true&output=csv';
+        
+        let dbExcel = [];
+
+        async function init() {
+            console.log("Sistema: Iniciando Handshake com Google Sheets...");
+            await carregarDados('especies');
+            await carregarDados('hela');
+            await updateThingSpeak();
+            setInterval(updateThingSpeak, 20000);
+        }
+
+        async function carregarDados(tipo) {
+            const url = (tipo === 'hela') ? urlHela : urlEspecies;
+            const statusEl = document.getElementById('hela-status');
+
+            try {
+                // Adicionamos um timestamp para evitar cache do navegador
+                const response = await fetch(url + '&cache=' + new Date().getTime());
+                if (!response.ok) throw new Error("Falha na conexão HTTP: " + response.status);
+                
+                const rawText = await response.text();
+                if (rawText.length < 10) throw new Error("Arquivo vazio ou privado.");
+
+                // Identifica se o CSV usa , ou ;
+                const sep = rawText.includes(';') ? ';' : ',';
+                const rows = rawText.split(/\r?\n/).map(line => line.split(sep));
+
+                if (tipo === 'especies') {
+                    const select = document.getElementById('speciesSelect');
+                    select.innerHTML = "";
+                    rows.slice(1).forEach(c => {
+                        if(c[0]) {
+                            let opt = document.createElement('option');
+                            opt.value = c[0].trim(); opt.text = c[0].trim();
+                            select.appendChild(opt);
+                        }
+                    });
+                } else {
+                    dbExcel = rows.filter(r => r.length > 1);
+                    const ultima = dbExcel[dbExcel.length - 1];
+                    document.getElementById('hela-peso').innerText = (ultima[1] || "??") + "g";
+                    document.getElementById('hela-comp').innerText = (ultima[2] || "??") + "cm";
+                    statusEl.innerText = "Última atualização: " + ultima[0];
+                    statusEl.style.color = "var(--accent)";
+                }
+            } catch (error) {
+                console.error("Erro no " + tipo + ":", error);
+                if(tipo === 'hela') statusEl.innerText = "Erro: Verificar publicação CSV.";
+            }
+        }
+
+        async function updateThingSpeak() {
+            try {
+                const res = await fetch(`https://api.thingspeak.com/channels/${channelID}/feeds.json?results=1`);
+                const data = await res.json();
+                const feed = data.feeds[0];
+                
+                const lastPost = new Date(feed.created_at);
+                const isOffline = (new Date() - lastPost) > 120000; // 2 min
+
+                if(isOffline) {
+                    document.getElementById('sys-status').innerText = "SISTEMA OFFLINE (ARDUINO DESLIGADO)";
+                    ["f1", "f2", "f3", "f5"].forEach(id => document.getElementById(id).innerText = "--");
+                } else {
+                    document.getElementById('sys-status').innerText = "SISTEMA ONLINE - " + lastPost.toLocaleTimeString();
+                    document.getElementById('f1').innerText = parseFloat(feed.field1 || 0).toFixed(1) + "°C";
+                    document.getElementById('f2').innerText = parseFloat(feed.field2 || 0).toFixed(1) + "%";
+                    document.getElementById('f3').innerText = parseFloat(feed.field3 || 0).toFixed(1) + "%";
+                    document.getElementById('f5').innerText = Math.round(feed.field5 || 0) + "ppm";
+                }
+            } catch(e) { 
+                document.getElementById('sys-status').innerText = "ERRO DE SINCRONISMO";
+            }
+        }
+
+        function openHistory(fieldId, title) {
+            const body = document.getElementById('modal-body');
+            document.getElementById('modal-title').innerText = "DADOS HISTÓRICOS: " + title;
+            body.innerHTML = `<iframe src="https://thingspeak.com/channels/${channelID}/charts/${fieldId}?bgcolor=%231c2023&color=%239a8b51&dynamic=true&results=100&type=line&title=Progresso+Recente"></iframe>`;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function openExcelHistory(titulo) {
+            document.getElementById('modal-title').innerText = titulo;
+            let html = `<table class="history-table"><tr><th>Data</th><th>Peso (g)</th><th>Comp (cm)</th><th>Observações</th></tr>`;
+            
+            dbExcel.slice(1).reverse().slice(0, 15).forEach(c => {
+                html += `<tr><td>${c[0]||''}</td><td>${c[1]||''}</td><td>${c[2]||''}</td><td>${c[3]||'-'}</td></tr>`;
+            });
+            html += `</table>`;
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        init();
+    </script>
+</body>
+</html>
