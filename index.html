@@ -8,12 +8,12 @@
     <style>
         /* --- Importação da Fonte Customizada --- */
         @font-face {
-    font-family: 'A760-Roman-Smc';
-    /* Tenta primeiro o arquivo que você subiu para o GitHub */
-    src: url('A760-Roman-Smc-Regular.ttf') format('truetype'); 
-    font-weight: normal;
-    font-style: normal;
-}
+            font-family: 'A760-Roman-Smc';
+            /* Tenta primeiro o arquivo que você subiu para o GitHub */
+            src: url('A760-Roman-Smc-Regular.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
 
         :root {
             --bg-color: #1a1c20;         
@@ -43,10 +43,9 @@
         }
         
         .page-header h1 {
-            /* Applying the custom font here, with fallbacks */
             font-family: 'A760-Roman-Smc', 'Segoe UI', Tahoma, sans-serif;
             margin: 0 0 15px 0;
-            font-size: 3em; /* Slightly increased to give the custom font more presence */
+            font-size: 3em;
             color: var(--text-main);
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             letter-spacing: 1px;
@@ -81,7 +80,7 @@
             box-shadow: 0 0 8px var(--accent-dark);
         }
 
-        /* --- Seleção de Espécie e Cabeçalho de Info --- */
+        /* --- Seleção de Espécie --- */
         .species-container {
             display: flex;
             background: var(--card-bg);
@@ -132,11 +131,6 @@
             border-radius: 6px;
             outline: none;
         }
-        
-        select option {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-        }
 
         .species-parameters {
             display: flex;
@@ -155,7 +149,7 @@
             border: 1px solid var(--card-border);
         }
 
-        /* --- Cards de Propriedades Físicas --- */
+        /* --- Cards de Dados --- */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -194,7 +188,6 @@
             margin: 0;
         }
 
-        /* --- Card Bio-Dados Hela --- */
         .bio-card-container {
             grid-column: 1 / -1; 
         }
@@ -233,7 +226,7 @@
             color: var(--accent-light);
         }
 
-        /* --- Modais (Tela Cheia) --- */
+        /* --- Modais --- */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -269,10 +262,6 @@
             color: var(--text-muted);
             cursor: pointer;
             line-height: 1;
-        }
-
-        .close-modal:hover {
-            color: var(--accent-light);
         }
 
         .iframe-container {
@@ -343,25 +332,25 @@
     </div>
 
     <div class="cards-grid">
-        <div class="data-card" onclick="abrirModalThingSpeak('Concentração de CO2')">
+        <div class="data-card" onclick="abrirModalThingSpeak('CO2')">
             <h3>Concentração CO2</h3>
-            <p class="value">420 ppm</p>
+            <p class="value"><span id="ts-co2">---</span> ppm</p>
         </div>
         <div class="data-card" onclick="abrirModalThingSpeak('Temperatura')">
             <h3>Temperatura</h3>
-            <p class="value">30.5 °C</p>
+            <p class="value"><span id="ts-temp">---</span> °C</p>
         </div>
         <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar')">
             <h3>Umidade do Ar</h3>
-            <p class="value">60 %</p>
+            <p class="value"><span id="ts-hum">---</span> %</p>
         </div>
         <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo')">
             <h3>Umidade do Solo</h3>
-            <p class="value">45 %</p>
+            <p class="value"><span id="ts-soil">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Nível do Reservatório de Água')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Água')">
             <h3>Nível de Água</h3>
-            <p class="value">85 %</p>
+            <p class="value"><span id="ts-water">---</span> %</p>
         </div>
 
         <div class="bio-card-container">
@@ -391,7 +380,7 @@
             <span class="close-modal" onclick="fecharModal('modalThingSpeak')">&times;</span>
             <h2 id="tituloModalThingSpeak" style="color: var(--accent-light);">Série Histórica</h2>
             <div class="iframe-container">
-                <p style="color: var(--text-muted); font-size: 1.2em;">[ Área reservada para o Iframe do ThingSpeak correspondente ]</p>
+                <p style="color: var(--text-muted); font-size: 1.2em;">[ Área reservada para o Iframe do ThingSpeak ]</p>
             </div>
         </div>
     </div>
@@ -400,36 +389,52 @@
         <div class="modal-content">
             <span class="close-modal" onclick="fecharModal('modalBioDados')">&times;</span>
             <h2 style="color: var(--accent-light);">Séries Históricas - Bio-Dados Hela</h2>
-            
             <div class="charts-container">
-                <div class="chart-box">
-                    <canvas id="graficoAlimentacao"></canvas>
-                </div>
-                <div class="chart-box">
-                    <canvas id="graficoPesagem"></canvas>
-                </div>
-                <div class="chart-box">
-                    <canvas id="graficoPele"></canvas>
-                </div>
+                <div class="chart-box"><canvas id="graficoAlimentacao"></canvas></div>
+                <div class="chart-box"><canvas id="graficoPesagem"></canvas></div>
+                <div class="chart-box"><canvas id="graficoPele"></canvas></div>
             </div>
         </div>
     </div>
 
     <script>
+        // /////////////////////////////////////////////////////////////////
+        // NOVO: CONFIGURAÇÃO DE CONEXÃO THINGSPEAK
+        // /////////////////////////////////////////////////////////////////
+        const CHANNEL_ID = 'SEU_ID_AQUI'; 
+        const READ_API_KEY = 'SUA_CHAVE_AQUI';
+
+        async function buscarDadosThingSpeak() {
+            const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds/last.json?api_key=${READ_API_KEY}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                // NOVO: Atualiza os valores na tela conforme os campos do ThingSpeak
+                if (data.field1) document.getElementById('ts-temp').innerText = parseFloat(data.field1).toFixed(1);
+                if (data.field2) document.getElementById('ts-hum').innerText = parseFloat(data.field2).toFixed(1);
+                if (data.field3) document.getElementById('ts-co2').innerText = parseInt(data.field3);
+                if (data.field4) document.getElementById('ts-soil').innerText = parseFloat(data.field4).toFixed(0);
+                if (data.field5) document.getElementById('ts-water').innerText = parseFloat(data.field5).toFixed(0);
+
+                console.log("Dados atualizados do ThingSpeak às " + new Date().toLocaleTimeString());
+            } catch (error) {
+                console.error("Erro ao buscar dados do ThingSpeak:", error);
+            }
+        }
+        // /////////////////////////////////////////////////////////////////
+
         const bancoEspecies = {
             "python_regius": {
                 imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Python_regius.jpg/800px-Python_regius.jpg",
-                tMin: 28, tMax: 32,
-                uaMin: 50, uaMax: 60,
-                sun: "Ciclo 12/12 (UVB Opcional)",
-                usMin: 30, usMax: 40
+                tMin: 28, tMax: 32, uaMin: 50, uaMax: 60,
+                sun: "Ciclo 12/12 (UVB Opcional)", usMin: 30, usMax: 40
             },
             "boa_constrictor": {
                 imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Boa_constrictor_1.jpg/800px-Boa_constrictor_1.jpg",
-                tMin: 26, tMax: 33,
-                uaMin: 60, uaMax: 80,
-                sun: "Ciclo 12/12 (UVB Recomendado)",
-                usMin: 40, usMax: 60
+                tMin: 26, tMax: 33, uaMin: 60, uaMax: 80,
+                sun: "Ciclo 12/12 (UVB Recomendado)", usMin: 40, usMax: 60
             }
         };
 
@@ -442,11 +447,9 @@
 
             if (chaveEspecie && bancoEspecies[chaveEspecie]) {
                 const dados = bancoEspecies[chaveEspecie];
-                
                 imgEl.src = dados.imgUrl;
                 imgEl.style.display = "block";
                 imgPlaceholder.style.display = "none";
-
                 document.getElementById("valTempMin").innerText = dados.tMin;
                 document.getElementById("valTempMax").innerText = dados.tMax;
                 document.getElementById("valUmidArMin").innerText = dados.uaMin;
@@ -454,7 +457,6 @@
                 document.getElementById("valSunlight").innerText = dados.sun;
                 document.getElementById("valUmidSoloMin").innerText = dados.usMin;
                 document.getElementById("valUmidSoloMax").innerText = dados.usMax;
-
                 divParams.style.display = "flex";
             } else {
                 imgEl.style.display = "none";
@@ -490,69 +492,42 @@
         function renderizarGraficosBioDados() {
             Chart.defaults.color = '#f4e9d8';
             Chart.defaults.borderColor = 'rgba(244, 233, 216, 0.1)';
-
             const datasEixoX = ['01/01', '15/01', '01/02', '15/02', '01/03', '10/03'];
             
-            const ctxAlim = document.getElementById('graficoAlimentacao').getContext('2d');
-            new Chart(ctxAlim, {
+            new Chart(document.getElementById('graficoAlimentacao').getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: datasEixoX,
-                    datasets: [{
-                        label: 'Pesagem do Alimento (g)',
-                        data: [35, 38, 40, 42, 45, 45],
-                        backgroundColor: 'rgba(209, 179, 139, 0.7)', 
-                        borderColor: '#d1b38b',
-                        borderWidth: 1
-                    }]
+                    datasets: [{ label: 'Pesagem do Alimento (g)', data: [35, 38, 40, 42, 45, 45], backgroundColor: 'rgba(209, 179, 139, 0.7)', borderColor: '#d1b38b', borderWidth: 1 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            const ctxPesagem = document.getElementById('graficoPesagem').getContext('2d');
-            new Chart(ctxPesagem, {
+            new Chart(document.getElementById('graficoPesagem').getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: datasEixoX,
-                    datasets: [{
-                        label: 'Pesagem do Animal (g)',
-                        data: [750, 775, 800, 815, 835, 850],
-                        backgroundColor: 'rgba(244, 233, 216, 0.15)', 
-                        borderColor: '#f4e9d8',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.3
-                    }]
+                    datasets: [{ label: 'Pesagem do Animal (g)', data: [750, 775, 800, 815, 835, 850], backgroundColor: 'rgba(244, 233, 216, 0.15)', borderColor: '#f4e9d8', borderWidth: 2, fill: true, tension: 0.3 }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            const datasPeleX = ['15/10/2025', '20/12/2025', '20/02/2026'];
-            const diasEntreTrocasY = [55, 66, 62];
-
-            const ctxPele = document.getElementById('graficoPele').getContext('2d');
-            new Chart(ctxPele, {
+            new Chart(document.getElementById('graficoPele').getContext('2d'), {
                 type: 'line',
                 data: {
-                    labels: datasPeleX,
-                    datasets: [{
-                        label: 'Dias de intervalo - Troca de Pele',
-                        data: diasEntreTrocasY,
-                        backgroundColor: 'rgba(209, 179, 139, 0.2)', 
-                        borderColor: '#d1b38b',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#d1b38b',
-                        pointRadius: 6,
-                        stepped: true
-                    }]
+                    labels: ['15/10/2025', '20/12/2025', '20/02/2026'],
+                    datasets: [{ label: 'Dias de intervalo - Troca de Pele', data: [55, 66, 62], backgroundColor: 'rgba(209, 179, 139, 0.2)', borderColor: '#d1b38b', borderWidth: 2, pointBackgroundColor: '#d1b38b', pointRadius: 6, stepped: true }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Dias de Intervalo', color: '#d1b38b' } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Dias de Intervalo', color: '#d1b38b' } } } }
             });
         }
+
+        // /////////////////////////////////////////////////////////////////
+        // NOVO: INICIALIZAÇÃO DA ATUALIZAÇÃO AUTOMÁTICA
+        // /////////////////////////////////////////////////////////////////
+        buscarDadosThingSpeak(); // Carrega imediatamente ao abrir
+        setInterval(buscarDadosThingSpeak, 30000); // Repete a cada 30 segundos
+        // /////////////////////////////////////////////////////////////////
     </script>
 </body>
 </html>
