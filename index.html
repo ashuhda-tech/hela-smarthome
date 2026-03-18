@@ -8,15 +8,12 @@
     <style>
         /* --- Importação da Fonte Customizada --- */
         @font-face {
-            font-family: 'A760-Roman-Smc';
-            /* The browser will first try to find the font installed locally on your machine */
-            src: local('A760-Roman-Smc-Regular'),
-                 /* If not found, it will try to load the file from your project folder (update this path if needed) */
-                 url('A760-Roman-Smc-Regular.woff2') format('woff2'),
-                 url('A760-Roman-Smc-Regular.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
+    font-family: 'A760-Roman-Smc';
+    /* Tenta primeiro o arquivo que você subiu para o GitHub */
+    src: url('A760-Roman-Smc-Regular.ttf') format('truetype'); 
+    font-weight: normal;
+    font-style: normal;
+}
 
         :root {
             --bg-color: #1a1c20;         
