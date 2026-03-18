@@ -6,16 +6,25 @@
     <title>Hela Smarthome</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* --- Importação da Fonte Customizada --- */
+        @font-face {
+            font-family: 'A760-Roman-Smc';
+            /* The browser will first try to find the font installed locally on your machine */
+            src: local('A760-Roman-Smc-Regular'),
+                 /* If not found, it will try to load the file from your project folder (update this path if needed) */
+                 url('A760-Roman-Smc-Regular.woff2') format('woff2'),
+                 url('A760-Roman-Smc-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         :root {
-            /* Nova cor adicionada a pedido: Dark Grey como cor primária de fundo */
             --bg-color: #1a1c20;         
-            
-            /* Paleta baseada na imagem enviada (priorizando os tons escuros) */
-            --card-bg: #070b14;          /* Azul super escuro/preto para fundo de cards */
-            --card-hover: #111827;       /* Azul marinho escuro para hover e chips */
-            --card-border: #1f2937;      /* Cinza/azul ardósia para bordas */
-            --accent-dark: #d1b38b;      /* Areia/Dourado escuro para destaques primários */
-            --accent-light: #f4e9d8;     /* Creme/Bege para textos e valores de destaque */
+            --card-bg: #070b14;          
+            --card-hover: #111827;       
+            --card-border: #1f2937;      
+            --accent-dark: #d1b38b;      
+            --accent-light: #f4e9d8;     
             
             --text-main: #f4e9d8;        
             --text-muted: #d1b38b;
@@ -37,10 +46,13 @@
         }
         
         .page-header h1 {
+            /* Applying the custom font here, with fallbacks */
+            font-family: 'A760-Roman-Smc', 'Segoe UI', Tahoma, sans-serif;
             margin: 0 0 15px 0;
-            font-size: 2.5em;
+            font-size: 3em; /* Slightly increased to give the custom font more presence */
             color: var(--text-main);
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
         }
 
         .system-status {
@@ -479,7 +491,6 @@
         }
 
         function renderizarGraficosBioDados() {
-            // Configurações globais de cor do Chart.js para a nova paleta escurecida
             Chart.defaults.color = '#f4e9d8';
             Chart.defaults.borderColor = 'rgba(244, 233, 216, 0.1)';
 
@@ -493,7 +504,7 @@
                     datasets: [{
                         label: 'Pesagem do Alimento (g)',
                         data: [35, 38, 40, 42, 45, 45],
-                        backgroundColor: 'rgba(209, 179, 139, 0.7)', // Cor areia com opacidade
+                        backgroundColor: 'rgba(209, 179, 139, 0.7)', 
                         borderColor: '#d1b38b',
                         borderWidth: 1
                     }]
@@ -509,7 +520,7 @@
                     datasets: [{
                         label: 'Pesagem do Animal (g)',
                         data: [750, 775, 800, 815, 835, 850],
-                        backgroundColor: 'rgba(244, 233, 216, 0.15)', // Cor creme com opacidade
+                        backgroundColor: 'rgba(244, 233, 216, 0.15)', 
                         borderColor: '#f4e9d8',
                         borderWidth: 2,
                         fill: true,
