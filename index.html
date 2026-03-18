@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TerraConnect Technologies</title>
+    <title>Julian's Design | TerraConnect Technologies</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* --- Importação da Fonte Customizada --- */
@@ -300,10 +300,10 @@
     </header>
 
     <div class="system-status">
-        <div class="status-badge"><div class="indicator"></div> Arduino: Online</div>
-        <div class="status-badge"><div class="indicator"></div> Conectado: Sim</div>
-        <div class="status-badge"><div class="indicator"></div> Enviando Dados: Sim</div>
-        <div class="status-badge"><div class="indicator"></div> Sincronizado: Sim</div>
+        <div class="status-badge"><div class="indicator"></div> Arduino: Offline</div>
+        <div class="status-badge"><div class="indicator"></div> Connected: No</div>
+        <div class="status-badge"><div class="indicator"></div> Data Transfer: No</div>
+        <div class="status-badge"><div class="indicator"></div> Sync: No</div>
     </div>
 
     <div class="species-container">
@@ -319,14 +319,11 @@
                 <option value="boa_constrictor">Jiboia | Boa constrictor</option>
             </select>
 
-            <div id="parametrosEspecie" class="species-parameters">
-                <div class="param-chip">Temp min: <span id="valTempMin">--</span> °C</div>
-                <div class="param-chip">Temp max: <span id="valTempMax">--</span> °C</div>
-                <div class="param-chip">Air humidity min: <span id="valUmidArMin">--</span> %</div>
-                <div class="param-chip">Air humidity max: <span id="valUmidArMax">--</span> %</div>
+<div id="parametrosEspecie" class="species-parameters">
+                <div class="param-chip">Temp: <span id="valTempMax">--</span>°C máx | <span id="valTempMin">--</span>°C min</div>
+                <div class="param-chip">Umid. Ar: <span id="valUmidArMax">--</span>% máx | <span id="valUmidArMin">--</span>% min</div>
                 <div class="param-chip">Sunlight: <span id="valSunlight">--</span></div>
-                <div class="param-chip">Soil humidity min: <span id="valUmidSoloMin">--</span> %</div>
-                <div class="param-chip">Soil humidity max: <span id="valUmidSoloMax">--</span> %</div>
+                <div class="param-chip">Umid. Solo: <span id="valUmidSoloMax">--</span>% máx | <span id="valUmidSoloMin">--</span>% min</div>
             </div>
         </div>
     </div>
@@ -335,36 +332,36 @@
 
     
     <div class="cards-grid">
-        <div class="data-card" onclick="abrirModalThingSpeak('CO2')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Concentração de CO2 [ppm]')">
             <h3>Concentração CO2</h3>
             <p class="value"><span id="ts-co2">---</span> ppm</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Temperatura')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Temperatura [°C]')">
             <h3>Temperatura</h3>
             <p class="value"><span id="ts-temp">---</span> °C</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar [%]')">
             <h3>Umidade do Ar</h3>
             <p class="value"><span id="ts-hum">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo [%]')">
             <h3>Umidade do Solo</h3>
             <p class="value"><span id="ts-soil">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Nível do Reservatório de Água')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Nível do Reservatório de Água [%]')">
             <h3>Nível de Água</h3>
             <p class="value"><span id="ts-water">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Temperatura do Sensor Remoto')">
-            <h3>Temperatura Remoto</h3>
+        <div class="data-card" onclick="abrirModalThingSpeak('Temperatura do Sensor Remoto [°C]')">
+            <h3>SR | Temperatura</h3>
             <p class="value"><span id="rs-temp">---</span> °C</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar do Sensor Remoto')">
-            <h3>Umidade do Ar Remoto</h3>
+        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar do Sensor Remoto [%]')">
+            <h3>SR | Umidade do Ar</h3>
             <p class="value"><span id="rs-hum">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo do Sensor Remoto')">
-            <h3>Umidade do Solo Remoto</h3>
+        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo do Sensor Remoto [%]')">
+            <h3>SR | Umidade do Solo</h3>
             <p class="value"><span id="rs-soil">---</span> %</p>
         </div>
 
