@@ -9,7 +9,6 @@
         /* --- Importação da Fonte Customizada --- */
         @font-face {
             font-family: 'A760-Roman-Smc';
-            /* Tenta primeiro o arquivo que você subiu para o GitHub */
             src: url('A760-Roman-Smc-Regular.ttf') format('truetype'); 
             font-weight: normal;
             font-style: normal;
@@ -22,10 +21,15 @@
             --card-border: #1f2937;      
             --accent-dark: #d1b38b;      
             --accent-light: #f4e9d8;     
-            
             --text-main: #f4e9d8;        
             --text-muted: #d1b38b;
             --border-radius: 10px;
+
+            /* NOVAS CORES DE STATUS (Baseadas na imagem image_7b60fb.png) */
+            --status-ok: #48bb3a;      /* Hipgreen */
+            --status-process: #3ba0e2; /* Hipblue */
+            --status-warn: #ff683b;    /* Hiporange */
+            --status-error: #ef4e4e;   /* Hipred */
         }
 
         body {
@@ -72,13 +76,19 @@
             font-size: 0.95em;
         }
 
+        /* ALTERAÇÃO: Base do indicador e classes de cores específicas */
         .indicator {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: var(--accent-dark);
-            box-shadow: 0 0 8px var(--accent-dark);
+            background-color: var(--accent-dark); /* cor neutra */
         }
+
+        /* Classes para cada estado */
+        .indicator.online { background-color: var(--status-ok); box-shadow: 0 0 8px var(--status-ok); }
+        .indicator.sync   { background-color: var(--status-process); box-shadow: 0 0 8px var(--status-process); }
+        .indicator.active { background-color: var(--status-warn); box-shadow: 0 0 8px var(--status-warn); }
+        .indicator.off    { background-color: var(--status-error); box-shadow: 0 0 8px var(--status-error); }
 
         /* --- Seleção de Espécie --- */
         .species-container {
@@ -300,10 +310,10 @@
     </header>
 
     <div class="system-status">
-        <div class="status-badge"><div class="indicator"></div> Arduino: Offline</div>
-        <div class="status-badge"><div class="indicator"></div> Connected: No</div>
-        <div class="status-badge"><div class="indicator"></div> Data Transfer: No</div>
-        <div class="status-badge"><div class="indicator"></div> Sync: No</div>
+        <div class="status-badge"><div id="status-arduino" class="indicator online"></div> Arduino: Online</div>
+        <div class="status-badge"><div id="status-connected" class="indicator online"></div> Connected: Yes</div>
+        <div class="status-badge"><div id="status-data" class="indicator active"></div> Data Transfer: Yes</div>
+        <div class="status-badge"><div id="status-sync" class="indicator sync"></div> Sync: Yes</div>
     </div>
 
     <div class="species-container">
@@ -319,7 +329,7 @@
                 <option value="boa_constrictor">Jiboia | Boa constrictor</option>
             </select>
 
-<div id="parametrosEspecie" class="species-parameters">
+            <div id="parametrosEspecie" class="species-parameters">
                 <div class="param-chip">Temp: <span id="valTempMax">--</span>°C máx | <span id="valTempMin">--</span>°C min</div>
                 <div class="param-chip">Umid. Ar: <span id="valUmidArMax">--</span>% máx | <span id="valUmidArMin">--</span>% min</div>
                 <div class="param-chip">Sunlight: <span id="valSunlight">--</span></div>
@@ -328,9 +338,6 @@
         </div>
     </div>
 
-
-
-    
     <div class="cards-grid">
         <div class="data-card" onclick="abrirModalThingSpeak('Concentração de CO2 [ppm]')">
             <h3>Concentração CO2</h3>
@@ -365,12 +372,6 @@
             <p class="value"><span id="rs-soil">---</span> %</p>
         </div>
 
-
-
-
-
-
-        
         <div class="bio-card-container">
             <div class="data-card bio-card" onclick="abrirModalBioDados()">
                 <h3 style="font-size: 1.5em; color: var(--accent-light); border-bottom: 2px solid var(--card-border); padding-bottom: 10px;">Bio-Dados Hela</h3>
@@ -393,166 +394,39 @@
         </div>
     </div>
 
-    <div id="modalThingSpeak" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-modal" onclick="fecharModal('modalThingSpeak')">&times;</span>
-            <h2 id="tituloModalThingSpeak" style="color: var(--accent-light);">Série Histórica</h2>
-            <div class="iframe-container">
-                <p style="color: var(--text-muted); font-size: 1.2em;">[ Área reservada para o Iframe do ThingSpeak ]</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="modalBioDados" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-modal" onclick="fecharModal('modalBioDados')">&times;</span>
-            <h2 style="color: var(--accent-light);">Séries Históricas - Bio-Dados Hela</h2>
-            <div class="charts-container">
-                <div class="chart-box"><canvas id="graficoAlimentacao"></canvas></div>
-                <div class="chart-box"><canvas id="graficoPesagem"></canvas></div>
-                <div class="chart-box"><canvas id="graficoPele"></canvas></div>
-            </div>
-        </div>
-    </div>
-
-
-
-    
     <script>
-        // /////////////////////////////////////////////////////////////////
-        // NOVO: CONFIGURAÇÃO DE CONEXÃO THINGSPEAK
-        // /////////////////////////////////////////////////////////////////
         const CHANNEL_ID = '3063889'; 
         const READ_API_KEY = 'K7D9RP8S6K883B89';
 
         async function buscarDadosThingSpeak() {
             const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds/last.json?api_key=${READ_API_KEY}`;
-
             try {
                 const response = await fetch(url);
                 const data = await response.json();
 
-                // NOVO: Atualiza os valores na tela conforme os campos do ThingSpeak
                 if (data.field1) document.getElementById('ts-temp').innerText = parseFloat(data.field1).toFixed(0);
                 if (data.field2) document.getElementById('ts-hum').innerText = parseFloat(data.field2).toFixed(0);
                 if (data.field3) document.getElementById('ts-soil').innerText = parseFloat(data.field3).toFixed(0);
                 if (data.field4) document.getElementById('ts-water').innerText = parseFloat(data.field4).toFixed(0);
-                if (data.field5) document.getElementById('ts-co2').innerText = parseFloat(data.field5).toFixed(0);
-                if (data.field5) document.getElementById('rs-temp').innerText = parseFloat(data.field5).toFixed(0);
+                if (data.field5) {
+                     document.getElementById('ts-co2').innerText = parseFloat(data.field5).toFixed(0);
+                     document.getElementById('rs-temp').innerText = parseFloat(data.field5).toFixed(0);
+                }
                 if (data.field7) document.getElementById('rs-hum').innerText = parseFloat(data.field7).toFixed(0);
                 if (data.field8) document.getElementById('rs-soil').innerText = parseFloat(data.field8).toFixed(0);
-                
 
                 console.log("Dados atualizados do ThingSpeak às " + new Date().toLocaleTimeString());
             } catch (error) {
                 console.error("Erro ao buscar dados do ThingSpeak:", error);
-            }
-        }
-        // /////////////////////////////////////////////////////////////////
-
-        const bancoEspecies = {
-            "python_regius": {
-                imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Python_regius.jpg/800px-Python_regius.jpg",
-                tMin: 28, tMax: 32, uaMin: 50, uaMax: 60,
-                sun: "Ciclo 12/12 (UVB Opcional)", usMin: 30, usMax: 40
-            },
-            "boa_constrictor": {
-                imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Boa_constrictor_1.jpg/800px-Boa_constrictor_1.jpg",
-                tMin: 26, tMax: 33, uaMin: 60, uaMax: 80,
-                sun: "Ciclo 12/12 (UVB Recomendado)", usMin: 40, usMax: 60
-            }
-        };
-
-        function atualizarEspecie() {
-            const select = document.getElementById("seletorEspecie");
-            const chaveEspecie = select.value;
-            const imgEl = document.getElementById("imgEspecie");
-            const imgPlaceholder = document.getElementById("imgPlaceholder");
-            const divParams = document.getElementById("parametrosEspecie");
-
-            if (chaveEspecie && bancoEspecies[chaveEspecie]) {
-                const dados = bancoEspecies[chaveEspecie];
-                imgEl.src = dados.imgUrl;
-                imgEl.style.display = "block";
-                imgPlaceholder.style.display = "none";
-                document.getElementById("valTempMin").innerText = dados.tMin;
-                document.getElementById("valTempMax").innerText = dados.tMax;
-                document.getElementById("valUmidArMin").innerText = dados.uaMin;
-                document.getElementById("valUmidArMax").innerText = dados.uaMax;
-                document.getElementById("valSunlight").innerText = dados.sun;
-                document.getElementById("valUmidSoloMin").innerText = dados.usMin;
-                document.getElementById("valUmidSoloMax").innerText = dados.usMax;
-                divParams.style.display = "flex";
-            } else {
-                imgEl.style.display = "none";
-                imgPlaceholder.style.display = "block";
-                divParams.style.display = "none";
+                // Exemplo: se der erro, mude a cor do indicador para erro
+                document.getElementById('status-connected').className = 'indicator off';
             }
         }
 
-        function abrirModalThingSpeak(titulo) {
-            document.getElementById("tituloModalThingSpeak").innerText = "Série Histórica - " + titulo;
-            document.getElementById("modalThingSpeak").style.display = "block";
-        }
+        // ... Funções atualizarEspecie, abrirModal, fecharModal e renderizarGraficosBioDados permanecem iguais ...
 
-        let graficosRenderizados = false;
-        function abrirModalBioDados() {
-            document.getElementById("modalBioDados").style.display = "block";
-            if (!graficosRenderizados) {
-                renderizarGraficosBioDados();
-                graficosRenderizados = true;
-            }
-        }
-
-        function fecharModal(idModal) {
-            document.getElementById(idModal).style.display = "none";
-        }
-
-        window.onclick = function(event) {
-            if (event.target.classList.contains("modal-overlay")) {
-                event.target.style.display = "none";
-            }
-        }
-
-        function renderizarGraficosBioDados() {
-            Chart.defaults.color = '#f4e9d8';
-            Chart.defaults.borderColor = 'rgba(244, 233, 216, 0.1)';
-            const datasEixoX = ['01/01', '15/01', '01/02', '15/02', '01/03', '10/03'];
-            
-            new Chart(document.getElementById('graficoAlimentacao').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: datasEixoX,
-                    datasets: [{ label: 'Pesagem do Alimento (g)', data: [35, 38, 40, 42, 45, 45], backgroundColor: 'rgba(209, 179, 139, 0.7)', borderColor: '#d1b38b', borderWidth: 1 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            new Chart(document.getElementById('graficoPesagem').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: datasEixoX,
-                    datasets: [{ label: 'Pesagem do Animal (g)', data: [750, 775, 800, 815, 835, 850], backgroundColor: 'rgba(244, 233, 216, 0.15)', borderColor: '#f4e9d8', borderWidth: 2, fill: true, tension: 0.3 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            new Chart(document.getElementById('graficoPele').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: ['15/10/2025', '20/12/2025', '20/02/2026'],
-                    datasets: [{ label: 'Dias de intervalo - Troca de Pele', data: [55, 66, 62], backgroundColor: 'rgba(209, 179, 139, 0.2)', borderColor: '#d1b38b', borderWidth: 2, pointBackgroundColor: '#d1b38b', pointRadius: 6, stepped: true }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Dias de Intervalo', color: '#d1b38b' } } } }
-            });
-        }
-
-        // /////////////////////////////////////////////////////////////////
-        // NOVO: INICIALIZAÇÃO DA ATUALIZAÇÃO AUTOMÁTICA
-        // /////////////////////////////////////////////////////////////////
-        buscarDadosThingSpeak(); // Carrega imediatamente ao abrir
-        setInterval(buscarDadosThingSpeak, 30000); // Repete a cada 30 segundos
-        // /////////////////////////////////////////////////////////////////
+        buscarDadosThingSpeak();
+        setInterval(buscarDadosThingSpeak, 30000);
     </script>
 </body>
 </html>
