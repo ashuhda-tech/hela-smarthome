@@ -331,6 +331,9 @@
         </div>
     </div>
 
+
+
+    
     <div class="cards-grid">
         <div class="data-card" onclick="abrirModalThingSpeak('CO2')">
             <h3>Concentração CO2</h3>
@@ -348,11 +351,29 @@
             <h3>Umidade do Solo</h3>
             <p class="value"><span id="ts-soil">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Água')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Nível do Reservatório de Água')">
             <h3>Nível de Água</h3>
             <p class="value"><span id="ts-water">---</span> %</p>
         </div>
+        <div class="data-card" onclick="abrirModalThingSpeak('Temperatura do Sensor Remoto')">
+            <h3>Temperatura Remoto</h3>
+            <p class="value"><span id="rs-temp">---</span> °C</p>
+        </div>
+        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar do Sensor Remoto')">
+            <h3>Umidade do Ar Remoto</h3>
+            <p class="value"><span id="rs-hum">---</span> %</p>
+        </div>
+        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo do Sensor Remoto')">
+            <h3>Umidade do Solo Remoto</h3>
+            <p class="value"><span id="rs-soil">---</span> %</p>
+        </div>
 
+
+
+
+
+
+        
         <div class="bio-card-container">
             <div class="data-card bio-card" onclick="abrirModalBioDados()">
                 <h3 style="font-size: 1.5em; color: var(--accent-light); border-bottom: 2px solid var(--card-border); padding-bottom: 10px;">Bio-Dados Hela</h3>
@@ -397,6 +418,9 @@
         </div>
     </div>
 
+
+
+    
     <script>
         // /////////////////////////////////////////////////////////////////
         // NOVO: CONFIGURAÇÃO DE CONEXÃO THINGSPEAK
@@ -412,11 +436,15 @@
                 const data = await response.json();
 
                 // NOVO: Atualiza os valores na tela conforme os campos do ThingSpeak
-                if (data.field1) document.getElementById('ts-temp').innerText = parseFloat(data.field1).toFixed(1);
-                if (data.field2) document.getElementById('ts-hum').innerText = parseFloat(data.field2).toFixed(1);
-                if (data.field3) document.getElementById('ts-co2').innerText = parseInt(data.field3);
-                if (data.field4) document.getElementById('ts-soil').innerText = parseFloat(data.field4).toFixed(0);
-                if (data.field5) document.getElementById('ts-water').innerText = parseFloat(data.field5).toFixed(0);
+                if (data.field1) document.getElementById('ts-temp').innerText = parseFloat(data.field1).toFixed(0);
+                if (data.field2) document.getElementById('ts-hum').innerText = parseFloat(data.field2).toFixed(0);
+                if (data.field3) document.getElementById('ts-soil').innerText = parseFloat(data.field3).toFixed(0);
+                if (data.field4) document.getElementById('ts-water').innerText = parseFloat(data.field4).toFixed(0);
+                if (data.field5) document.getElementById('ts-co2').innerText = parseFloat(data.field5).toFixed(0);
+                if (data.field5) document.getElementById('rs-temp').innerText = parseFloat(data.field5).toFixed(0);
+                if (data.field7) document.getElementById('rs-hum').innerText = parseFloat(data.field7).toFixed(0);
+                if (data.field8) document.getElementById('rs-soil').innerText = parseFloat(data.field8).toFixed(0);
+                
 
                 console.log("Dados atualizados do ThingSpeak às " + new Date().toLocaleTimeString());
             } catch (error) {
