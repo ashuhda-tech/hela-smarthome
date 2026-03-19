@@ -203,39 +203,49 @@
             margin: 0;
         }
 
-        .bio-side-by-side {
-            display: flex;
-            gap: 20px;
-            width: 100%;
-            flex-wrap: wrap;
-        }
+        /* Layout Lado a Lado */
+.bio-side-by-side {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
 
-        .bio-card-wrapper { flex: 2 1 600px; }
-        .image-card-wrapper { flex: 1 1 300px; }
+.bio-card-wrapper { flex: 2 1 600px; }
+.image-card-wrapper { flex: 1 1 300px; }
 
-        .image-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            padding: 0 !important;
-        }
+.image-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--border-radius);
+    height: 100%;
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0 !important;
+}
 
-        .image-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+.image-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
 
-        .chart-container {
-            margin-bottom: 40px;
-            background: rgba(255,255,255,0.02);
-            padding: 15px;
-            border-radius: 8px;
-        }
+.image-card:hover img {
+    transform: scale(1.05);
+}
 
+.chart-container {
+    margin-bottom: 40px;
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+}
         .bio-card {
             background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-hover) 100%);
             border: 1px solid var(--card-border);
@@ -537,24 +547,33 @@
         </div>
 
         <div class="bio-side-by-side">
-        <div class="bio-card-wrapper">
-            <div class="data-card bio-card" onclick="abrirModalBioDados()">
-                <h3 style="font-size: 1.5em; color: var(--accent-light); border-bottom: 2px solid var(--card-border); padding-bottom: 10px;">Hela Bio-Data</h3>
-                <div class="bio-grid">
-                    <div class="bio-data-point"><span>Last Feeding</span><strong id="bio-data-alim">--/--/----</strong><br><small id="bio-info-alim">Weight: --g</small></div>
-                    <div class="bio-data-point"><span>Last Weighing</span><strong id="bio-data-peso">--/--/----</strong><br><small id="bio-info-peso">Weight: --g</small></div>
-                    <div class="bio-data-point"><span>Last Shedding</span><strong id="bio-data-pele">--/--/----</strong><br><small id="bio-info-pele">Status: --</small></div>
-                </div>
-                <p style="margin-top: 15px; font-size: 0.9em; color: var(--accent-dark);">Click to view analytical charts</p>
+    <div class="bio-card-wrapper">
+        <div class="data-card bio-card" onclick="abrirModalBioDados()" style="cursor: pointer;">
+            <h3 style="font-size: 1.5em; color: var(--accent-light); border-bottom: 2px solid var(--card-border); padding-bottom: 10px;">Hela Bio-Data</h3>
+            <div class="bio-grid">
+                <div class="bio-data-point"><span>Last Feeding</span><strong id="bio-data-alim">--/--/----</strong><br><small id="bio-info-alim">Weight: --g</small></div>
+                <div class="bio-data-point"><span>Last Weighing</span><strong id="bio-data-peso">--/--/----</strong><br><small id="bio-info-peso">Weight: --g</small></div>
+                <div class="bio-data-point"><span>Last Shedding</span><strong id="bio-data-pele">--/--/----</strong><br><small id="bio-info-pele">Interval: -- days</small></div>
             </div>
+            <p style="margin-top: 15px; font-size: 0.8em; color: var(--accent-dark); opacity: 0.7;">Click to expand analytical view</p>
         </div>
+    </div>
 
-        <div class="image-card-wrapper">
-            <div class="data-card image-card" id="latest-image-card">
-                <img id="hela-latest-img" src="" alt="Latest Hela Photo" style="display:none;">
-                <p id="img-loading-text" style="color: var(--text-muted);">Loading photo...</p>
-            </div>
+    <div class="image-card-wrapper">
+        <div class="data-card image-card">
+            <img id="hela-latest-img" src="" alt="Hela" style="display:none;">
+            <p id="img-loading-text" style="color: var(--text-muted);">Fetching image...</p>
         </div>
+    </div>
+</div>
+
+<div id="modalBioCharts" class="modal-overlay">
+    <div class="modal-content" style="max-width: 900px;">
+        <span class="close-modal" onclick="fecharModalCharts()">&times;</span>
+        <h2 style="color: var(--accent-light); margin-bottom: 20px;">Hela | Growth Metrics</h2>
+        <div class="chart-container"><canvas id="chartFeeding"></canvas></div>
+        <div class="chart-container"><canvas id="chartWeight"></canvas></div>
+        <div class="chart-container"><canvas id="chartShedding"></canvas></div>
     </div>
 </div>
 
@@ -580,6 +599,11 @@
     </div>
 
     <script>
+                // Esta função é o começo para Galeria        
+        let currentSlide = 0;
+        let galleryImages = [];
+        let myCharts = []; // Armazena instâncias para limpar ao fechar
+        
         const CHANNEL_ID = '3063889'; 
         const READ_API_KEY = 'K7D9RP8S6K883B89';
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQPIj53K6S1tfQLEssozqH55iGwWS0fHNft4fcf8CSzkmU0ZBqdSCYI8m30T_rkhg/pub?gid=1486357435&single=true&output=csv';
@@ -711,152 +735,120 @@
         // Função auxiliar para formatar a data (Ex: 3/15/2026 -> 15 / MAR / 2026)
 function formatarDataIngles(dataStr) {
     if (!dataStr || dataStr.includes("--")) return "-- / --- / ----";
-    
-    const data = new Date(dataStr);
-    if (isNaN(data.getTime())) return dataStr; // Retorna original se falhar
+    const partes = dataStr.split('/');
+    // Assume DD/MM/YYYY do Excel
+    const data = new Date(partes[2], partes[1] - 1, partes[0]);
+    if (isNaN(data.getTime())) return dataStr;
 
     const meses = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-    
-    const dia = String(data.getDate()).padStart(2, '0');
-    const mes = meses[data.getMonth()];
-    const ano = data.getFullYear();
-
-    return `${dia} / ${mes} / ${ano}`;
+    return `${String(data.getDate()).padStart(2, '0')} / ${meses[data.getMonth()]} / ${data.getFullYear()}`;
 }
 
 async function carregarBioDados() {
     try {
         const response = await fetch(BIO_CSV_URL);
-        const data = await response.text();
-        const linhasRaw = data.split('\n').filter(line => line.trim() !== "");
-        const cabecalho = linhasRaw[0].split(',');
+        const text = await response.text();
+        const linhasRaw = text.split('\n').filter(l => l.trim() !== "");
+        if (linhasRaw.length < 2) return;
 
-        const idx = {
-            data: cabecalho.indexOf('Data'),
-            peso: cabecalho.indexOf('Peso'),
-            evento: cabecalho.indexOf('Evento'),
-            comprimento: cabecalho.indexOf('Comprimento'),
-            tempoTroca: cabecalho.indexOf('Tempo entre troca de pele')
-        };
+        const cabecalho = linhasRaw[0].split(',').map(h => h.trim());
+        const dataIdx = cabecalho.indexOf('Data');
+        const pesoIdx = cabecalho.indexOf('Peso');
+        const eventoIdx = cabecalho.indexOf('Evento');
+        const tempoMudaIdx = cabecalho.indexOf('Tempo entre troca de pele');
+        const imgIdx = cabecalho.indexOf('Image URL');
 
-        const linhasValidas = linhasRaw.slice(1).filter(linha => {
-            const col = linha.split(',');
-            const valorPeso = col[idx.peso]?.trim();
-            return valorPeso !== "" && valorPeso !== undefined && valorPeso !== null;
+        let ultimaAlim = null, ultimaPeso = null, ultimaMuda = null, ultimaImgUrl = null;
+        const lines = linhasRaw.slice(1);
+
+        lines.forEach(linha => {
+            const cols = linha.split(',');
+            const evento = cols[eventoIdx]?.trim().toLowerCase() || "";
+            const imgUrl = cols[imgIdx]?.trim();
+
+            if (evento.includes('alimentaç') || evento.includes('alimentacao')) ultimaAlim = cols;
+            if (evento === 'pesagem') ultimaPeso = cols;
+            if (evento === 'troca de pele') ultimaMuda = cols;
+            if (imgUrl && imgUrl.startsWith('http')) ultimaImgUrl = imgUrl;
         });
 
-        let ultimaAlim = null, ultimaPesagem = null, ultimaTroca = null;
-
-        linhasValidas.forEach(linha => {
-            const col = linha.split(',');
-            const evento = col[idx.evento]?.trim().toLowerCase();
-
-            // Mapeamento baseado nos termos do seu CSV original
-            if (evento === 'alimentacao' || evento === 'alimentação') ultimaAlim = col;
-            if (evento === 'pesagem') ultimaPesagem = col;
-            if (evento === 'troca de pele') ultimaTroca = col;
-        });
-
-        // Atualização dos Cards com a nova formatação de data
+        // 1. Atualiza Textos com Formatação
         if (ultimaAlim) {
-            document.getElementById('bio-data-alim').innerText = formatarDataIngles(ultimaAlim[idx.data]);
-            document.getElementById('bio-info-alim').innerText = `Prey Weight: ${ultimaAlim[idx.peso]}g`;
+            document.getElementById('bio-data-alim').innerText = formatarDataIngles(ultimaAlim[dataIdx]);
+            document.getElementById('bio-info-alim').innerText = `Weight: ${ultimaAlim[pesoIdx]}g`;
+        }
+        if (ultimaPeso) {
+            document.getElementById('bio-data-peso').innerText = formatarDataIngles(ultimaPeso[dataIdx]);
+            document.getElementById('bio-info-peso').innerText = `Weight: ${ultimaPeso[pesoIdx]}g`;
+        }
+        if (ultimaMuda) {
+            document.getElementById('bio-data-pele').innerText = formatarDataIngles(ultimaMuda[dataIdx]);
+            document.getElementById('bio-info-pele').innerText = `Interval: ${ultimaMuda[tempoMudaIdx]} days`;
         }
 
-        if (ultimaPesagem) {
-            document.getElementById('bio-data-peso').innerText = formatarDataIngles(ultimaPesagem[idx.data]);
-            document.getElementById('bio-info-peso').innerText = `Weight: ${ultimaPesagem[idx.peso]}g | Size: ${ultimaPesagem[idx.comprimento]}cm`;
+        // 2. Atualiza Imagem Lateral
+        if (ultimaImgUrl) {
+            const imgEl = document.getElementById('hela-latest-img');
+            imgEl.src = ultimaImgUrl;
+            imgEl.style.display = 'block';
+            const loadingText = document.getElementById('img-loading-text');
+            if (loadingText) loadingText.style.display = 'none';
         }
 
-        if (ultimaTroca) {
-            document.getElementById('bio-data-pele').innerText = formatarDataIngles(ultimaTroca[idx.data]);
-            document.getElementById('bio-info-pele').innerText = `Interval: ${ultimaTroca[idx.tempoTroca]} days`;
-        }
-
-    } catch (error) {
-        console.error("Error processing Bio-Data:", error);
-    }
+        window.cachedBioData = { lines, dataIdx, pesoIdx, eventoIdx, tempoMudaIdx };
+    } catch (e) { console.error("Erro Bio-Data:", e); }
 }
 
-
-
-
-        // Esta função é o começo para Galeria        
-        let currentSlide = 0;
-        let galleryImages = [];
-        let myCharts = []; // Armazena instâncias para limpar ao fechar
-
-        // Esta função substitui o comportamento de abrir o modal comum para abrir Os graficos do excel
-        async function abrirModalBioDados() {
+function abrirModalBioDados() {
     const modal = document.getElementById('modalBioCharts');
+    if (!modal || !window.cachedBioData) return;
+    
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
 
-    try {
-        const response = await fetch(BIO_CSV_URL);
-        const text = await response.text();
-        const lines = text.split('\n').filter(l => l.trim() !== "").slice(1);
-        
-        // Dados para os 3 gráficos
-        const dataAlim = { labels: [], values: [] };
-        const dataPeso = { labels: [], values: [] };
-        const dataMuda = { labels: [], values: [] };
+    const { lines, dataIdx, pesoIdx, eventoIdx, tempoMudaIdx } = window.cachedBioData;
+    const dAlim = { labels: [], values: [] }, dPeso = { labels: [], values: [] }, dMuda = { labels: [], values: [] };
 
-        lines.forEach(line => {
-            const col = line.split(',');
-            const data = col[0].trim(); // Coluna Data
-            const peso = parseFloat(col[1]); // Coluna Peso
-            const evento = col[2].trim().toLowerCase(); // Coluna Evento
-            const tempoMuda = parseFloat(col[4]); // Coluna Tempo entre troca de pele
+    lines.forEach(l => {
+        const c = l.split(',');
+        const ev = c[eventoIdx]?.trim().toLowerCase() || "";
+        if (ev.includes('alimentaç') || ev.includes('alimentacao')) { 
+            dAlim.labels.push(c[dataIdx]); dAlim.values.push(parseFloat(c[pesoIdx])); 
+        }
+        if (ev === 'pesagem') { 
+            dPeso.labels.push(c[dataIdx]); dPeso.values.push(parseFloat(c[pesoIdx])); 
+        }
+        if (ev === 'troca de pele') { 
+            dMuda.labels.push(c[dataIdx]); dMuda.values.push(parseFloat(c[tempoMudaIdx])); 
+        }
+    });
 
-            if (evento.includes('alimentaç') || evento.includes('alimentacao')) {
-                dataAlim.labels.push(data);
-                dataAlim.values.push(peso);
-            }
-            if (evento === 'pesagem') {
-                dataPeso.labels.push(data);
-                dataPeso.values.push(peso);
-            }
-            if (evento === 'troca de pele' && !isNaN(tempoMuda)) {
-                dataMuda.labels.push(data);
-                dataMuda.values.push(tempoMuda);
-            }
-        });
+    myCharts.forEach(c => c.destroy());
+    myCharts = [
+        criarGrafico('chartFeeding', 'Feeding History (g)', dAlim, '#48bb3a'),
+        criarGrafico('chartWeight', 'Weight Evolution (g)', dPeso, '#3ba0e2'),
+        criarGrafico('chartShedding', 'Shedding Intervals (Days)', dMuda, '#ff683b')
+    ];
+}
 
-        // Limpa gráficos anteriores se existirem
-        myCharts.forEach(c => c.destroy());
-        myCharts = [];
-
-        const chartConfig = (id, label, dataObj, color) => {
-            return new Chart(document.getElementById(id), {
-                type: 'line',
-                data: {
-                    labels: dataObj.labels,
-                    datasets: [{
-                        label: label,
-                        data: dataObj.values,
-                        borderColor: color,
-                        backgroundColor: color + '33',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { labels: { color: '#f4e9d8' } } },
-                    scales: {
-                        x: { ticks: { color: '#d1b38b' }, grid: { color: '#1f2937' } },
-                        y: { ticks: { color: '#d1b38b' }, grid: { color: '#1f2937' } }
-                    }
-                }
-            });
-        };
-
-        myCharts.push(chartConfig('chartFeeding', 'Feeding Weight (g)', dataAlim, '#48bb3a'));
-        myCharts.push(chartConfig('chartWeight', 'Animal Growth Weight (g)', dataPeso, '#3ba0e2'));
-        myCharts.push(chartConfig('chartShedding', 'Days Between Shedding', dataMuda, '#ff683b'));
-
-    } catch (e) { console.error("Chart Error:", e); }
+function criarGrafico(id, label, data, color) {
+    const ctx = document.getElementById(id);
+    if (!ctx) return null;
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{ label, data: data.values, borderColor: color, backgroundColor: color+'22', fill: true, tension: 0.2 }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { ticks: { color: '#d1b38b' }, grid: { color: '#1f2937' } },
+                y: { ticks: { color: '#d1b38b' }, grid: { color: '#1f2937' } }
+            },
+            plugins: { legend: { labels: { color: '#f4e9d8', font: { family: 'A760-Roman-Smc' } } } }
+        }
+    });
 }
 
 function fecharModalCharts() {
@@ -864,27 +856,12 @@ function fecharModalCharts() {
     document.body.style.overflow = 'auto';
 }
 
-// Atualizar a imagem no card lateral durante o carregamento inicial
-// Adicione isto dentro da sua função carregarBioDados() existente:
-async function carregarBioDados() {
-    // ... (seu código existente de busca de dados) ...
-    
-    // Trecho novo para a imagem lateral:
-    const imgIdx = cabecalho.findIndex(h => h.trim() === 'Image URL');
-    const todasImagens = linhasRaw.slice(1).map(l => l.split(',')[imgIdx]?.trim()).filter(url => url && url.startsWith('http'));
-    if (todasImagens.length > 0) {
-        const imgEl = document.getElementById('hela-latest-img');
-        imgEl.src = todasImagens[todasImagens.length - 1]; // Pega a última
-        imgEl.style.display = 'block';
-        document.getElementById('img-loading-text').style.display = 'none';
-    }
-}
-
-        carregarEspeciesCSV();
-        buscarDadosThingSpeak();
-        carregarBioDados();
-        setInterval(buscarDadosThingSpeak, 30000);
-        setInterval(carregarBioDados, 60000); 
+// Inicialização única
+carregarEspeciesCSV();
+buscarDadosThingSpeak();
+carregarBioDados();
+setInterval(buscarDadosThingSpeak, 30000);
+setInterval(carregarBioDados, 60000);
         
     </script>
 
