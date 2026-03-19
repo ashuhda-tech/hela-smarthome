@@ -282,14 +282,19 @@
 
         .iframe-container {
             width: 100%;
-            height: 70vh;
+            height: 75vh; /* Aumentei um pouco a altura */
             background: var(--card-bg);
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             border: 1px solid var(--card-border);
             margin-top: 20px;
+            overflow: hidden; /* Garante que nada saia do limite */
+        }
+
+        /* Nova regra para o gráfico ocupar tudo */
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
 
         /* --- Camera Section --- */
@@ -659,7 +664,8 @@
             const iframe = document.getElementById('iframeThingSpeak');
             const tituloModal = document.getElementById('tituloModal');
             
-            const chartUrl = `https://thingspeak.com/channels/${CHANNEL_ID}/charts/${fieldId}?bgcolor=%23070b14&color=%23d1b38b&dynamic=true&results=60&type=line&update=15`;
+            // Adicionamos width=auto e height=auto para o ThingSpeak tentar preencher o container
+            const chartUrl = `https://thingspeak.com/channels/${CHANNEL_ID}/charts/${fieldId}?bgcolor=%23070b14&color=%23d1b38b&dynamic=true&results=60&type=line&update=15&width=auto&height=auto`;
             
             tituloModal.innerText = `History: ${titulo}`;
             iframe.src = chartUrl;
