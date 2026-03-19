@@ -368,146 +368,71 @@
             border: none;
         }
 
-        /* --- Camera Section --- */
-        .camera-section {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            border: 1px solid var(--card-border);
-            margin-top: 20px;
-            margin-bottom: 40px;
-        }
+/* --- Seção da Câmera --- */
+.camera-section {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    border: 1px solid var(--card-border);
+    margin-top: 20px;
+    margin-bottom: 40px;
+    width: 100%; 
+    box-sizing: border-box; 
+    clear: both;
+}
 
-        .camera-wrapper {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #000;
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid var(--card-border);
-        }
+.camera-wrapper {
+    width: 100%;
+    aspect-ratio: 16 / 9; /* Mantém o formato cinema */
+    background: #000;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .camera-wrapper iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+/* Suporte para quando você colocar um link real de vídeo futuramente */
+.camera-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
 
-        /* --- Photo Carousel Styles --- */
-        .carousel-container {
-            position: relative;
-            width: 100%;
-            height: 70vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-        }
+/* Estilo do Placeholder (Animação de Loading) */
+.camera-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #000;
+    color: var(--accent-dark);
+    font-family: 'A760-Roman-Smc', sans-serif;
+    text-align: center;
+}
 
-        .carousel-image {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            display: none; /* Hidden by default, toggled by JS */
-        }
+.camera-placeholder img {
+    max-width: 250px;
+    opacity: 0.7;
+    filter: sepia(50%) hue-rotate(-20deg); /* Ajuste de tom para o tema */
+    margin-bottom: 15px;
+}
 
-        .carousel-image.active { display: block; }
+.camera-placeholder p {
+    letter-spacing: 3px;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    animation: pulse 2s infinite;
+}
 
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--accent-light);
-            border: none;
-            padding: 20px 15px;
-            cursor: pointer;
-            font-size: 24px;
-            transition: background 0.3s;
-        }
-
-        .carousel-btn:hover { background: rgba(255, 255, 255, 0.3); }
-        .prev-btn { left: 0; border-radius: 0 5px 5px 0; }
-        .next-btn { right: 0; border-radius: 5px 0 0 5px; }
-
-        /* --- Social Media Footer --- */
-        .social-footer {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 50px;
-            padding: 30px 0;
-            border-top: 1px solid var(--card-border);
-        }
-
-        .social-icon {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 14px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            opacity: 0.8;
-        }
-
-        .social-icon:hover {
-            color: var(--accent-light);
-            transform: translateY(-3px);
-            opacity: 1;
-            text-shadow: 0 0 10px var(--accent-dark);
-        }
-
-        .social-icon svg {
-            width: 32px;
-            height: 32px;
-            fill: currentColor;
-        }
-
-        .footer-label {
-            font-family: 'A760-Roman-Smc', sans-serif;
-            font-size: 0.75em;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        /* --- Estilo para o Placeholder da Câmera --- */
-        .camera-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-color: #000;
-            color: var(--accent-dark);
-            font-family: 'A760-Roman-Smc', sans-serif;
-            text-align: center;
-        }
-
-        .camera-placeholder img {
-            max-width: 250px; /* Ajuste o tamanho da animação aqui */
-            opacity: 0.7;
-            filter: sepia(50%) hue-rotate(-20deg); /* Ajusta o tom do GIF para combinar com o seu bege/dourado */
-            margin-bottom: 15px;
-        }
-
-        .camera-placeholder p {
-            letter-spacing: 3px;
-            font-size: 0.9em;
-            text-transform: uppercase;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.4; }
-            50% { opacity: 1; }
-            100% { opacity: 0.4; }
-        }
+@keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
         
     </style>
 </head>
@@ -607,22 +532,23 @@
         <div class="chart-container"><canvas id="chartWeight"></canvas></div>
         <div class="chart-container"><canvas id="chartShedding"></canvas></div>
     </div>
+</div> 
+
+<div class="camera-section">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent-dark)" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23 19C23 20.1046 22.1046 21 21 21H3C1.89543 21 1 20.1046 1 19V8C1 6.89543 1.89543 6 3 6H7.17157L8.58579 4.58579C8.96086 4.21071 9.46957 4 10 4H14C14.5304 4 15.0391 4.21071 15.4142 4.58579L16.8284 6H21C22.1046 6 23 6.89543 23 8V19ZM12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17ZM12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12C15 13.6569 13.6569 15 12 15Z"/>
+        </svg>
+        <h3 style="color: var(--accent-light); margin: 0; font-family: 'A760-Roman-Smc', sans-serif;">Real-Time Monitoring | 360°</h3>
+    </div>
+
+    <div class="camera-wrapper">
+        <div class="camera-placeholder">
+            <img src="https://i.redd.it/16s1863j0y6c1.gif" alt="System Loading Animation" style="max-width: 300px;">
+            <p style="font-family: 'A760-Roman-Smc', sans-serif; letter-spacing: 2px;">Establishing Secure Uplink...</p>
+        </div>
+    </div>
 </div>
-
-  <div class="camera-section">
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent-dark)" xmlns="http://www.w3.org/2000/svg">
-                <path d="M23 19C23 20.1046 22.1046 21 21 21H3C1.89543 21 1 20.1046 1 19V8C1 6.89543 1.89543 6 3 6H7.17157L8.58579 4.58579C8.96086 4.21071 9.46957 4 10 4H14C14.5304 4 15.0391 4.21071 15.4142 4.58579L16.8284 6H21C22.1046 6 23 6.89543 23 8V19ZM12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17ZM12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12C15 13.6569 13.6569 15 12 15Z"/>
-            </svg>
-            <h3 style="color: var(--accent-light); margin: 0;">Real-Time Monitoring | 360°</h3>
-        </div>
-
-        <div class="camera-wrapper">
-            <div class="camera-placeholder">
-                <img src="https://i.redd.it/16s1863j0y6c1.gif" alt="System Loading Animation">
-                <p>Establishing Secure Uplink...</p>
-            </div>
-        </div>
         
         <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.85em; color: var(--text-muted);">
             <span style="color: var(--status-warn);">Status: Signal Lost</span>
