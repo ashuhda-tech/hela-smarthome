@@ -1,18 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Julian's Design | TerraConnect Technologies</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-
-
-
-
-
-
-    
     <style>
         /* --- Importação da Fonte Customizada --- */
         @font-face {
@@ -23,17 +16,17 @@
         }
 
         :root {
-            --bg-color: #1a1c20;         
-            --card-bg: #070b14;          
-            --card-hover: #111827;       
-            --card-border: #1f2937;      
-            --accent-dark: #d1b38b;      
-            --accent-light: #f4e9d8;     
-            --text-main: #f4e9d8;        
+            --bg-color: #1a1c20;          
+            --card-bg: #070b14;           
+            --card-hover: #111827;        
+            --card-border: #1f2937;       
+            --accent-dark: #d1b38b;       
+            --accent-light: #f4e9d8;      
+            --text-main: #f4e9d8;         
             --text-muted: #d1b38b;
             --border-radius: 10px;
 
-            /* NOVAS CORES DE STATUS (Baseadas na imagem image_7b60fb.png) */
+            /* NOVAS CORES DE STATUS */
             --status-ok: #48bb3a;      /* Hipgreen */
             --status-process: #3ba0e2; /* Hipblue */
             --status-warn: #ff683b;    /* Hiporange */
@@ -84,15 +77,13 @@
             font-size: 0.95em;
         }
 
-        /* ALTERAÇÃO: Base do indicador e classes de cores específicas */
         .indicator {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: var(--accent-dark); /* cor neutra */
+            background-color: var(--accent-dark); 
         }
 
-        /* Classes para cada estado */
         .indicator.online { background-color: var(--status-ok); box-shadow: 0 0 8px var(--status-ok); }
         .indicator.sync   { background-color: var(--status-process); box-shadow: 0 0 8px var(--status-process); }
         .indicator.active { background-color: var(--status-warn); box-shadow: 0 0 8px var(--status-warn); }
@@ -151,7 +142,7 @@
         }
 
         .species-parameters {
-            display: none; /* Inicia oculto, a função JS altera para 'flex' */
+            display: none;
             flex-wrap: wrap;
             gap: 12px;
         }
@@ -293,23 +284,7 @@
             margin-top: 20px;
         }
 
-        .charts-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        .chart-box {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            border: 1px solid var(--card-border);
-            height: 400px;
-        }
-
-        /* --- Container da Câmera 360 --- */
+        /* --- Camera Section --- */
         .camera-section {
             background: var(--card-bg);
             padding: 20px;
@@ -352,107 +327,96 @@
 
     <div class="species-container">
         <div class="species-image-wrapper">
-            <img id="imgEspecie" src="" alt="Imagem da Espécie">
-            <span id="imgPlaceholder" style="color: var(--text-muted);">Sem Imagem</span>
+            <img id="imgEspecie" src="" alt="Species Image">
+            <span id="imgPlaceholder" style="color: var(--text-muted);">No Image</span>
         </div>
         
         <div class="species-details">
             <select id="seletorEspecie" onchange="atualizarEspecie()">
-                <option value="">Carregando espécies...</option>
-            </select>
+                <option value="">Loading species...</option>
+            </select>
 
             <div id="parametrosEspecie" class="species-parameters">
-                <div class="param-chip">Temp: <strong id="valTempMax">--</strong>°C máx | <strong id="valTempMin">--</strong>°C min</div>
-                <div class="param-chip">Umid. Ar: <strong id="valUmidArMax">--</strong>% máx | <strong id="valUmidArMin">--</strong>% min</div>
+                <div class="param-chip">Temp: <strong id="valTempMax">--</strong>°C max | <strong id="valTempMin">--</strong>°C min</div>
+                <div class="param-chip">Air Humid: <strong id="valUmidArMax">--</strong>% max | <strong id="valUmidArMin">--</strong>% min</div>
                 <div class="param-chip">Sunlight: <strong id="valSunlight">--</strong></div>
-                <div class="param-chip">Umid. Solo: <strong id="valUmidSoloMax">--</strong>% máx | <strong id="valUmidSoloMin">--</strong>% min</div>
+                <div class="param-chip">Soil Humid: <strong id="valUmidSoloMax">--</strong>% max | <strong id="valUmidSoloMin">--</strong>% min</div>
             </div>
         </div>
     </div>
 
-
-
-
-    
     <div class="cards-grid">
-        <div class="data-card" onclick="abrirModalThingSpeak('Concentração de CO2 [ppm]', 5)">
-            <h3>Concentração CO2</h3>
+        <div class="data-card" onclick="abrirModalThingSpeak('CO2 Concentration [ppm]', 5)">
+            <h3>CO2 Concentration</h3>
             <p class="value"><span id="ts-co2">---</span> ppm</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Temperatura [°C]', 1)">
-            <h3>Temperatura</h3>
+        <div class="data-card" onclick="abrirModalThingSpeak('Temperature [°C]', 1)">
+            <h3>Temperature</h3>
             <p class="value"><span id="ts-temp">---</span> °C</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar [%]', 2)">
-            <h3>Umidade do Ar</h3>
+        <div class="data-card" onclick="abrirModalThingSpeak('Air Humidity [%]', 2)">
+            <h3>Air Humidity</h3>
             <p class="value"><span id="ts-hum">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo [%]', 3)">
-            <h3>Umidade do Solo</h3>
+        <div class="data-card" onclick="abrirModalThingSpeak('Soil Humidity [%]', 3)">
+            <h3>Soil Humidity</h3>
             <p class="value"><span id="ts-soil">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Nível do Reservatório de Água [%]', 4)">
-            <h3>Nível de Água</h3>
+        <div class="data-card" onclick="abrirModalThingSpeak('Water Reservoir Level [%]', 4)">
+            <h3>Water Level</h3>
             <p class="value"><span id="ts-water">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Temperatura do Sensor Remoto [°C]', 6)">
-            <h3>SR | Temperatura</h3>
+        <div class="data-card" onclick="abrirModalThingSpeak('Remote Sensor | Temperature [°C]', 6)">
+            <h3>RS | Temperature</h3>
             <p class="value"><span id="rs-temp">---</span> °C</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar do Sensor Remoto [%]', 7)">
-            <h3>SR | Umidade do Ar</h3>
+        <div class="data-card" onclick="abrirModalThingSpeak('Remote Sensor | Air Humidity [%]', 7)">
+            <h3>RS | Air Humidity</h3>
             <p class="value"><span id="rs-hum">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo do Sensor Remoto [%]', 8)">
-            <h3>SR | Umidade do Solo</h3>
+        <div class="data-card" onclick="abrirModalThingSpeak('Remote Sensor | Soil Humidity [%]', 8)">
+            <h3>RS | Soil Humidity</h3>
             <p class="value"><span id="rs-soil">---</span> %</p>
         </div>
 
-
-
-        
         <div class="bio-card-container">
             <div class="data-card bio-card" onclick="abrirModalBioDados()">
-                <h3 style="font-size: 1.5em; color: var(--accent-light); border-bottom: 2px solid var(--card-border); padding-bottom: 10px;">Bio-Dados Hela</h3>
+                <h3 style="font-size: 1.5em; color: var(--accent-light); border-bottom: 2px solid var(--card-border); padding-bottom: 10px;">Hela Bio-Data</h3>
                 
                 <div class="bio-grid">
-    <div class="bio-data-point">
-        <span>Última Alimentação</span>
-        <strong id="bio-data-alim">--/--/----</strong> <br> 
-        <small id="bio-info-alim">Peso: --g</small>
-    </div>
-    <div class="bio-data-point">
-        <span>Última Pesagem</span>
-        <strong id="bio-data-peso">--/--/----</strong> <br> 
-        <small id="bio-info-peso">Peso: --g</small>
-    </div>
-    <div class="bio-data-point">
-        <span>Última Troca de Pele</span>
-        <strong id="bio-data-pele">--/--/----</strong> <br> 
-        <small id="bio-info-pele">Status: --</small>
-    </div>
-</div>
-                <p style="margin-top: 15px; font-size: 0.9em; color: var(--accent-dark);">Clique para expandir gráficos históricos</p>
+                    <div class="bio-data-point">
+                        <span>Last Feeding</span>
+                        <strong id="bio-data-alim">--/--/----</strong> <br> 
+                        <small id="bio-info-alim">Weight: --g</small>
+                    </div>
+                    <div class="bio-data-point">
+                        <span>Last Weighing</span>
+                        <strong id="bio-data-peso">--/--/----</strong> <br> 
+                        <small id="bio-info-peso">Weight: --g</small>
+                    </div>
+                    <div class="bio-data-point">
+                        <span>Last Shedding</span>
+                        <strong id="bio-data-pele">--/--/----</strong> <br> 
+                        <small id="bio-info-pele">Status: --</small>
+                    </div>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.9em; color: var(--accent-dark);">Click to expand historical charts</p>
             </div>
         </div>
-    </div>
+    </div>
 
-
-
-
-    
     <div class="camera-section">
-        <h3 style="color: var(--accent-light); margin-top: 0; margin-bottom: 15px;">Monitoramento em Tempo Real | 360°</h3>
+        <h3 style="color: var(--accent-light); margin-top: 0; margin-bottom: 15px;">Real-Time Monitoring | 360°</h3>
         <div class="camera-wrapper">
             <iframe src="URL_DO_PORTAL_DA_CAMERA" allowfullscreen></iframe>
         </div>
         <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.85em; color: var(--text-muted);">
-            <span>Sistema: Ativo</span>
-            <span>Local: Recinto Interno</span>
+            <span>System: Active</span>
+            <span>Location: Internal Enclosure</span>
         </div>
     </div>
 
-    <script>
+    <script>
         const CHANNEL_ID = '3063889'; 
         const READ_API_KEY = 'K7D9RP8S6K883B89';
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQPIj53K6S1tfQLEssozqH55iGwWS0fHNft4fcf8CSzkmU0ZBqdSCYI8m30T_rkhg/pub?gid=1486357435&single=true&output=csv';
@@ -462,25 +426,24 @@
             try {
                 const response = await fetch(CSV_URL);
                 const data = await response.text();
-                const linhas = data.split('\n').slice(1); // Pula o cabeçalho
+                const linhas = data.split('\n').slice(1); 
                 const seletor = document.getElementById('seletorEspecie');
                 
-                seletor.innerHTML = '<option value="">Selecione a Espécie monitorada...</option>';
+                seletor.innerHTML = '<option value="">Select Monitored Species...</option>';
 
                 linhas.forEach(linha => {
                     const colunas = linha.split(',');
-                    if (colunas.length > 5) { // Verifica se a linha tem dados suficientes
+                    if (colunas.length > 5) {
                         const option = document.createElement('option');
-                        option.value = colunas[0].trim().toLowerCase().replace(/ /g, '_'); // Scientific Name
-                        option.text = `${colunas[1].trim()} | ${colunas[0].trim()}`; // Common | Scientific
+                        option.value = colunas[0].trim().toLowerCase().replace(/ /g, '_'); 
+                        option.text = `${colunas[1].trim()} | ${colunas[0].trim()}`; 
                         
-                        // Mapeamento exato baseado na sua lista:
                         option.dataset.imgUrl = colunas[2];
                         option.dataset.tempMin = colunas[4];
                         option.dataset.tempMax = colunas[5];
                         option.dataset.umidArMin = colunas[6];
                         option.dataset.umidArMax = colunas[7];
-                        option.dataset.sunlight = colunas[8]; // Sunlight
+                        option.dataset.sunlight = colunas[8];
                         option.dataset.umidSoloMin = colunas[9];
                         option.dataset.umidSoloMax = colunas[10];
                         
@@ -488,11 +451,11 @@
                     }
                 });
             } catch (error) {
-                console.error("Erro ao carregar CSV:", error);
+                console.error("Error loading CSV:", error);
             }
         }
 
-        async function buscarDadosThingSpeak() {
+        async function buscarDadosThingSpeak() {
             const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds/last.json?api_key=${READ_API_KEY}`;
             try {
                 const response = await fetch(url);
@@ -507,15 +470,14 @@
                 if (data.field7) document.getElementById('rs-hum').innerText = parseFloat(data.field7).toFixed(0);
                 if (data.field8) document.getElementById('rs-soil').innerText = parseFloat(data.field8).toFixed(0);
 
-                console.log("Dados atualizados do ThingSpeak às " + new Date().toLocaleTimeString());
+                console.log("Data updated from ThingSpeak at " + new Date().toLocaleTimeString());
             } catch (error) {
-                console.error("Erro ao buscar dados do ThingSpeak:", error);
-                // Exemplo: se der erro, mude a cor do indicador para erro
+                console.error("Error fetching ThingSpeak data:", error);
                 document.getElementById('status-connected').className = 'indicator off';
             }
         }
 
-     function atualizarEspecie() {
+        function atualizarEspecie() {
             const seletor = document.getElementById('seletorEspecie');
             const selectedOption = seletor.options[seletor.selectedIndex];
             const listaParams = document.getElementById('parametrosEspecie');
@@ -531,14 +493,12 @@
 
             listaParams.style.display = 'flex';
 
-            // Atualização da Imagem
             if (selectedOption.dataset.imgUrl) {
                 imgEspecie.src = selectedOption.dataset.imgUrl;
                 imgEspecie.style.display = 'block';
                 imgPlaceholder.style.display = 'none';
             }
 
-            // Preenchimento dos Chips
             document.getElementById('valTempMax').innerText = selectedOption.dataset.tempMax || '--';
             document.getElementById('valTempMin').innerText = selectedOption.dataset.tempMin || '--';
             document.getElementById('valUmidArMax').innerText = selectedOption.dataset.umidArMax || '--';
@@ -553,13 +513,12 @@
             const iframe = document.getElementById('iframeThingSpeak');
             const tituloModal = document.getElementById('tituloModal');
             
-            // Monta a URL do gráfico dinamicamente
             const chartUrl = `https://thingspeak.com/channels/${CHANNEL_ID}/charts/${fieldId}?bgcolor=%23070b14&color=%23d1b38b&dynamic=true&results=60&type=line&update=15`;
             
-            tituloModal.innerText = `Histórico: ${titulo}`;
+            tituloModal.innerText = `History: ${titulo}`;
             iframe.src = chartUrl;
             modal.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Trava o scroll do fundo
+            document.body.style.overflow = 'hidden'; 
         }
 
         function fecharModal() {
@@ -567,91 +526,80 @@
             const iframe = document.getElementById('iframeThingSpeak');
             
             modal.style.display = 'none';
-            iframe.src = ''; // Limpa o iframe para economizar recursos
-            document.body.style.overflow = 'auto'; // Libera o scroll
+            iframe.src = ''; 
+            document.body.style.overflow = 'auto'; 
         }
         
-       async function carregarBioDados() {
-    try {
-        const response = await fetch(BIO_CSV_URL);
-        const data = await response.text();
-        const linhasRaw = data.split('\n').filter(line => line.trim() !== "");
-        const cabecalho = linhasRaw[0].split(',');
+        async function carregarBioDados() {
+            try {
+                const response = await fetch(BIO_CSV_URL);
+                const data = await response.text();
+                const linhasRaw = data.split('\n').filter(line => line.trim() !== "");
+                const cabecalho = linhasRaw[0].split(',');
 
-        const idx = {
-            data: cabecalho.indexOf('Data'),
-            peso: cabecalho.indexOf('Peso'),
-            evento: cabecalho.indexOf('Evento'),
-            comprimento: cabecalho.indexOf('Comprimento'),
-            tempoTroca: cabecalho.indexOf('Tempo entre troca de pele')
-        };
+                const idx = {
+                    data: cabecalho.indexOf('Data'),
+                    peso: cabecalho.indexOf('Peso'),
+                    evento: cabecalho.indexOf('Evento'),
+                    comprimento: cabecalho.indexOf('Comprimento'),
+                    tempoTroca: cabecalho.indexOf('Tempo entre troca de pele')
+                };
 
-        // Filtragem: Remove linhas onde o Peso está em branco/nulo
-        // Mantém 0 e outros valores numéricos
-        const linhasValidas = linhasRaw.slice(1).filter(linha => {
-            const col = linha.split(',');
-            const valorPeso = col[idx.peso]?.trim();
-            return valorPeso !== "" && valorPeso !== undefined && valorPeso !== null;
-        });
+                const linhasValidas = linhasRaw.slice(1).filter(linha => {
+                    const col = linha.split(',');
+                    const valorPeso = col[idx.peso]?.trim();
+                    return valorPeso !== "" && valorPeso !== undefined && valorPeso !== null;
+                });
 
-        let ultimaAlim = null, ultimaPesagem = null, ultimaTroca = null;
+                let ultimaAlim = null, ultimaPesagem = null, ultimaTroca = null;
 
-        // Processa apenas as linhas que passaram no filtro de peso
-        linhasValidas.forEach(linha => {
-            const col = linha.split(',');
-            const evento = col[idx.evento]?.trim().toLowerCase();
+                linhasValidas.forEach(linha => {
+                    const col = linha.split(',');
+                    const evento = col[idx.evento]?.trim().toLowerCase();
 
-            if (evento === 'alimentacao') ultimaAlim = col;
-            if (evento === 'pesagem') ultimaPesagem = col;
-            if (evento === 'troca de pele') ultimaTroca = col;
-        });
+                    // Ajuste para reconhecer termos em PT-BR do seu CSV original
+                    if (evento === 'alimentacao' || evento === 'alimentação') ultimaAlim = col;
+                    if (evento === 'pesagem') ultimaPesagem = col;
+                    if (evento === 'troca de pele') ultimaTroca = col;
+                });
 
-        // Injeção nos Cards (Alimentação)
-        if (ultimaAlim) {
-            document.getElementById('bio-data-alim').innerText = ultimaAlim[idx.data];
-            document.getElementById('bio-info-alim').innerText = `Peso Presa: ${ultimaAlim[idx.peso]}g`;
+                if (ultimaAlim) {
+                    document.getElementById('bio-data-alim').innerText = ultimaAlim[idx.data];
+                    document.getElementById('bio-info-alim').innerText = `Prey Weight: ${ultimaAlim[idx.peso]}g`;
+                }
+
+                if (ultimaPesagem) {
+                    document.getElementById('bio-data-peso').innerText = ultimaPesagem[idx.data];
+                    document.getElementById('bio-info-peso').innerText = `Weight: ${ultimaPesagem[idx.peso]}g | Size: ${ultimaPesagem[idx.comprimento]}cm`;
+                }
+
+                if (ultimaTroca) {
+                    document.getElementById('bio-data-pele').innerText = ultimaTroca[idx.data];
+                    document.getElementById('bio-info-pele').innerText = `Interval: ${ultimaTroca[idx.tempoTroca]} days`;
+                }
+
+            } catch (error) {
+                console.error("Error processing Bio-Data:", error);
+            }
         }
 
-        // Injeção nos Cards (Pesagem)
-        if (ultimaPesagem) {
-            document.getElementById('bio-data-peso').innerText = ultimaPesagem[idx.data];
-            document.getElementById('bio-info-peso').innerText = `Peso: ${ultimaPesagem[idx.peso]}g | Tam: ${ultimaPesagem[idx.comprimento]}cm`;
-        }
-
-        // Injeção nos Cards (Troca de Pele)
-        if (ultimaTroca) {
-            document.getElementById('bio-data-pele').innerText = ultimaTroca[idx.data];
-            // Para troca de pele, o peso 0 é ignorado na exibição, focando no intervalo
-            document.getElementById('bio-info-pele').innerText = `Intervalo: ${ultimaTroca[idx.tempoTroca]} dias`;
-        }
-
-    } catch (error) {
-        console.error("Erro ao processar Bio-Dados:", error);
-    }
-}
-
-        
-// Inicialize a função junto com as outras
-    carregarEspeciesCSV();
-    buscarDadosThingSpeak();
-    carregarBioDados(); // Chamada inicial
-    setInterval(buscarDadosThingSpeak, 30000);
-    setInterval(carregarBioDados, 60000); // Atualiza bio-dados a cada 1 minuto
+        carregarEspeciesCSV();
+        buscarDadosThingSpeak();
+        carregarBioDados();
+        setInterval(buscarDadosThingSpeak, 30000);
+        setInterval(carregarBioDados, 60000); 
         
     </script>
 
-    
     <div id="modalGrafico" class="modal-overlay" onclick="fecharModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <span class="close-modal" onclick="fecharModal()">&times;</span>
-            <h2 id="tituloModal" style="color: var(--accent-light); margin-bottom: 20px;">Dados Históricos</h2>
+            <h2 id="tituloModal" style="color: var(--accent-light); margin-bottom: 20px;">Historical Data</h2>
             <div class="iframe-container">
                 <iframe id="iframeThingSpeak" width="100%" height="100%" style="border: none;"></iframe>
             </div>
         </div>
     </div>
 
-
-    
 </body>
 </html>
