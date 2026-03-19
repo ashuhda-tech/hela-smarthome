@@ -203,33 +203,36 @@
             margin: 0;
         }
 
-      /* Layout Principal */
+/* Layout Principal */
 .bio-side-by-side {
     display: flex;
     gap: 20px;
     width: 100%;
     margin-top: 20px;
-    align-items: stretch; /* Mantém a altura igual para ambos */
+    /* Alinha os itens ao topo para que a altura do container seja definida pelo maior card (Bio-data) */
+    align-items: stretch; 
 }
 
-/* Container do Card de Dados - Ele cresce para ocupar o espaço restante */
+/* O Bio-data card ocupa todo o espaço horizontal disponível menos o que a imagem usar */
 .bio-card-wrapper { 
     flex: 1; 
     display: flex;
 }
 
-/* Container da Imagem - Largura automática baseada no conteúdo */
+/* O wrapper da imagem terá apenas a largura necessária para a imagem proporcional */
 .image-card-wrapper { 
-    flex: 0 1 auto; /* Não força largura, ajusta conforme a imagem */
     display: flex;
+    flex: 0 0 auto; /* Não cresce, não encolhe além do conteúdo */
 }
 
-/* O Card de Dados */
+/* Card de Dados */
 .bio-card {
     width: 100%;
+    padding: 20px; /* Ajuste o padding conforme seu padrão */
+    box-sizing: border-box;
 }
 
-/* O Card de Imagem Ajustado para não recortar */
+/* O Card de Imagem */
 .image-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
@@ -242,12 +245,11 @@
 }
 
 .image-card img {
-    /* O segredo: altura 100% do card pai e largura automática */
-    height: 100%; 
-    width: auto;
-    max-width: 500px; /* Limite opcional para a imagem não ficar gigante em telas ultra-wide */
-    object-fit: contain; /* Garante que a imagem inteira apareça */
+    /* A altura da imagem será SEMPRE a mesma do card de dados ao lado */
+    height: 100%;
+    width: auto; /* A largura se ajusta proporcionalmente */
     display: block;
+    object-fit: contain; /* Garante que a imagem inteira apareça no retângulo */
 }
 
 .image-card:hover img {
