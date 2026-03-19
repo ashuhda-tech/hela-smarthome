@@ -371,35 +371,35 @@
     </div>
 
     <div class="cards-grid">
-        <div class="data-card" onclick="abrirModalThingSpeak('Concentração de CO2 [ppm]')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Concentração de CO2 [ppm]', 5)">
             <h3>Concentração CO2</h3>
             <p class="value"><span id="ts-co2">---</span> ppm</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Temperatura [°C]')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Temperatura [°C]', 1)">
             <h3>Temperatura</h3>
             <p class="value"><span id="ts-temp">---</span> °C</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar [%]')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar [%]', 2)">
             <h3>Umidade do Ar</h3>
             <p class="value"><span id="ts-hum">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo [%]')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo [%]', 3)">
             <h3>Umidade do Solo</h3>
             <p class="value"><span id="ts-soil">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Nível do Reservatório de Água [%]')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Nível do Reservatório de Água [%]', 4)">
             <h3>Nível de Água</h3>
             <p class="value"><span id="ts-water">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Temperatura do Sensor Remoto [°C]')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Temperatura do Sensor Remoto [°C]', 6)">
             <h3>SR | Temperatura</h3>
             <p class="value"><span id="rs-temp">---</span> °C</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar do Sensor Remoto [%]')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Ar do Sensor Remoto [%]', 7)">
             <h3>SR | Umidade do Ar</h3>
             <p class="value"><span id="rs-hum">---</span> %</p>
         </div>
-        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo do Sensor Remoto [%]')">
+        <div class="data-card" onclick="abrirModalThingSpeak('Umidade do Solo do Sensor Remoto [%]', 8)">
             <h3>SR | Umidade do Solo</h3>
             <p class="value"><span id="rs-soil">---</span> %</p>
         </div>
@@ -486,10 +486,8 @@
                 if (data.field2) document.getElementById('ts-hum').innerText = parseFloat(data.field2).toFixed(0);
                 if (data.field3) document.getElementById('ts-soil').innerText = parseFloat(data.field3).toFixed(0);
                 if (data.field4) document.getElementById('ts-water').innerText = parseFloat(data.field4).toFixed(0);
-                if (data.field5) {
-                     document.getElementById('ts-co2').innerText = parseFloat(data.field5).toFixed(0);
-                     document.getElementById('rs-temp').innerText = parseFloat(data.field5).toFixed(0);
-                }
+                if (data.field5) document.getElementById('ts-co2').innerText = parseFloat(data.field5).toFixed(0);
+                if (data.field6) document.getElementById('rs-temp').innerText = parseFloat(data.field6).toFixed(0);
                 if (data.field7) document.getElementById('rs-hum').innerText = parseFloat(data.field7).toFixed(0);
                 if (data.field8) document.getElementById('rs-soil').innerText = parseFloat(data.field8).toFixed(0);
 
