@@ -390,6 +390,40 @@
             letter-spacing: 2px;
             text-transform: uppercase;
         }
+
+        /* --- Estilo para o Placeholder da Câmera --- */
+        .camera-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #000;
+            color: var(--accent-dark);
+            font-family: 'A760-Roman-Smc', sans-serif;
+            text-align: center;
+        }
+
+        .camera-placeholder img {
+            max-width: 250px; /* Ajuste o tamanho da animação aqui */
+            opacity: 0.7;
+            filter: sepia(50%) hue-rotate(-20deg); /* Ajusta o tom do GIF para combinar com o seu bege/dourado */
+            margin-bottom: 15px;
+        }
+
+        .camera-placeholder p {
+            letter-spacing: 3px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
         
     </style>
 </head>
@@ -488,11 +522,16 @@
 
     <div class="camera-section">
         <h3 style="color: var(--accent-light); margin-top: 0; margin-bottom: 15px;">Real-Time Monitoring | 360°</h3>
+        <div class="camera-section">
+        <h3 style="color: var(--accent-light); margin-top: 0; margin-bottom: 15px;">Real-Time Monitoring | 360°</h3>
         <div class="camera-wrapper">
-            <iframe src="URL_DO_PORTAL_DA_CAMERA" allowfullscreen></iframe>
+            <div class="camera-placeholder">
+                <img src="https://i.redd.it/16s1863j0y6c1.gif" alt="System Loading Animation">
+                <p>Establishing Secure Uplink...</p>
+            </div>
         </div>
         <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.85em; color: var(--text-muted);">
-            <span>System: Active</span>
+            <span style="color: var(--status-warn);">Status: Signal Lost</span>
             <span>Location: Internal Enclosure</span>
         </div>
     </div>
