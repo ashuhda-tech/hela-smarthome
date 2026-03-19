@@ -766,72 +766,70 @@ async function carregarBioDados() {
         if (linhasRaw.length < 2) return;
 
         const cabecalho = linhasRaw[0].split(',').map(h => h.trim());
+        const dataIdx = cabecalho.indexOf('Data');
+        const pesoIdx = cabecalho.indexOf('Peso');
+        const eventoIdx = cabecalho.indexOf('Evento');
+        const tempoMudaIdx = cabecalho.indexOf('Tempo entre troca de pele');
+        const imgIdx = cabecalho.indexOf('Image URL');
+
+        // --- COLE ESTE BLOCO NO LUGAR ---
+let ultimaAlim = null, ultimaPeso = null, ultimaMuda = null;
+helaImgList = []; // Limpa a lista para atualização
+
+const lines = linhasRaw.slice(1);
+lines.forEach(linha => {
+    const cols = linha.split(',');
+    const evento = cols[eventoIdx]?.trim().toLowerCase() || "";
+    const imgUrl = cols[imgIdx]?.trim();
+    
+    if (evento.includes('alimentaç') || evento.includes('alimentacao')) ultimaAlim = cols;
+    if (evento === 'pesagem') ultimaPeso = cols;
+    if (evento === 'troca de pele') ultimaMuda = cols;
+    
+    // Coleta todos os links válidos da coluna Image URL
+    if (imgUrl && imgUrl.startsWith('http')) {
+        helaImgList.push(imgUrl);
+    }
+});
+
+// 1. Atualiza Textos com Formatação
+if (ultimaAlim) {
+    document.getElementById('bio-data-alim').innerText = formatarDataIngles(ultimaAlim[dataIdx]);
+    document.getElementById('bio-info-alim').innerText = `Weight: ${ultimaAlim[pesoIdx]}g`;
+}
+if (ultimaPeso) {
+    document.getElementById('bio-data-peso').innerText = formatarDataIngles(ultimaPeso[dataIdx]);
+    document.getElementById('bio-info-peso').innerText = `Weight: ${ultimaPeso[pesoIdx]}g`;
+}
+if (ultimaMuda) {
+    document.getElementById('bio-data-pele').innerText = formatarDataIngles(ultimaMuda[dataIdx]);
+    document.getElementById('bio-info-pele').innerText = `Interval: ${ultimaMuda[tempoMudaIdx]} days`;
+}
+
+// 2. Inicia o Carrossel Automático
+if (helaImgList.length > 0) {
+    if (helaCarouselInterval) clearInterval(helaCarouselInterval);
+    
+    // Função interna para trocar a imagem
+    const trocarImagem = () => {
+        const imgEl = document.getElementById('hela-latest-img');
+        const loadingText = document.getElementById('img-loading-text');
         
-        // --- BUSCA FLEXÍVEL DE COLUNAS (Ignora maiúsculas/minúsculas) ---
-        const getIdx = (termo) => cabecalho.findIndex(h => h.toLowerCase().includes(termo.toLowerCase()));
-        const dataIdx = getIdx('data');
-        const pesoIdx = getIdx('peso');
-        const eventoIdx = getIdx('evento');
-        const tempoMudaIdx = getIdx('tempo'); 
-        const imgIdx = getIdx('image');
+        imgEl.src = helaImgList[helaImgIndex];
+        imgEl.style.display = 'block';
+        if (loadingText) loadingText.style.display = 'none';
+        
+        // Incrementa o índice para a próxima foto
+        helaImgIndex = (helaImgIndex + 1) % helaImgList.length;
+    };
 
-        let ultimaAlim = null, ultimaPeso = null, ultimaMuda = null;
-        helaImgList = []; // Reinicia lista para o carrossel
-
-        const lines = linhasRaw.slice(1);
-        lines.forEach(linha => {
-            const cols = linha.split(',');
-            const eventoRaw = cols[eventoIdx]?.trim().toLowerCase() || "";
-            const imgUrl = cols[imgIdx]?.trim();
-
-            // Busca flexível de eventos (Resolve o problema de não aparecer nos cards)
-            if (eventoRaw.includes('alimen')) ultimaAlim = cols;
-            if (eventoRaw.includes('pesag')) ultimaPeso = cols;
-            if (eventoRaw.includes('pele') || eventoRaw.includes('muda')) ultimaMuda = cols;
-            
-            // Alimenta lista do carrossel com links do BioDados
-            if (imgUrl && imgUrl.startsWith('http')) {
-                helaImgList.push(imgUrl);
-            }
-        });
-
-        // 1. Atualiza Textos dos Cards (BioCard)
-        if (ultimaAlim) {
-            document.getElementById('bio-data-alim').innerText = formatarDataIngles(ultimaAlim[dataIdx]);
-            document.getElementById('bio-info-alim').innerText = `Weight: ${ultimaAlim[pesoIdx]}g`;
-        }
-        if (ultimaPeso) {
-            document.getElementById('bio-data-peso').innerText = formatarDataIngles(ultimaPeso[dataIdx]);
-            document.getElementById('bio-info-peso').innerText = `Weight: ${ultimaPeso[pesoIdx]}g`;
-        }
-        if (ultimaMuda) {
-            document.getElementById('bio-data-pele').innerText = formatarDataIngles(ultimaMuda[dataIdx]);
-            document.getElementById('bio-info-pele').innerText = `Interval: ${ultimaMuda[tempoMudaIdx]} days`;
-        }
-
-        // 2. Inicia/Reseta o Carrossel da Imagem (15 segundos)
-        if (helaImgList.length > 0) {
-            if (helaCarouselInterval) clearInterval(helaCarouselInterval);
-            
-            const trocarImagem = () => {
-                const imgEl = document.getElementById('hela-latest-img');
-                const loadingText = document.getElementById('img-loading-text');
-                if (imgEl) {
-                    imgEl.src = helaImgList[helaImgIndex];
-                    imgEl.style.display = 'block';
-                    if (loadingText) loadingText.style.display = 'none';
-                    helaImgIndex = (helaImgIndex + 1) % helaImgList.length;
-                }
-            };
-
-            trocarImagem(); // Exibe a primeira imediatamente
-            helaCarouselInterval = setInterval(trocarImagem, 15000);
-        }
+    trocarImagem(); // Exibe a primeira imediatamente
+    helaCarouselInterval = setInterval(trocarImagem, 15000); // Ciclo de 15 segundos
+}
+// --- FIM DO NOVO BLOCO ---
 
         window.cachedBioData = { lines, dataIdx, pesoIdx, eventoIdx, tempoMudaIdx };
-    } catch (e) {
-        console.error("Erro ao carregar BioDados:", e);
-    }
+    } catch (e) { console.error("Erro Bio-Data:", e); }
 }
 
 function abrirModalBioDados() {
