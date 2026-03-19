@@ -571,50 +571,57 @@
             document.body.style.overflow = 'auto'; // Libera o scroll
         }
         
-        async function carregarBioDados() {
-            try {
-                const response = await fetch(BIO_CSV_URL);
-                const data = await response.text();
-                // Divide as linhas e remove espaços vazios
-                const linhas = data.split('\n').filter(line => line.trim() !== "");
-                const cabecalho = linhas[0].split(',');
-                
-        // Mapeamento de índices baseado nas colunas solicitadas
-                const idx = {
-                    data: cabecalho.indexOf('Data'),
-                    peso: cabecalho.indexOf('Peso'),
-                    evento: cabecalho.indexOf('Evento'),
-                    comprimento: cabecalho.indexOf('Comprimento'),
-                    tempoTroca: cabecalho.indexOf('Tempo entre troca de pele')
-                };
+       async function carregarBioDados() {
+    try {
+        const response = await fetch(BIO_CSV_URL);
+        const data = await response.text();
+        const linhasRaw = data.split('\n').filter(line => line.trim() !== "");
+        const cabecalho = linhasRaw[0].split(',');
+
+        const idx = {
+            data: cabecalho.indexOf('Data'),
+            peso: cabecalho.indexOf('Peso'),
+            evento: cabecalho.indexOf('Evento'),
+            comprimento: cabecalho.indexOf('Comprimento'),
+            tempoTroca: cabecalho.indexOf('Tempo entre troca de pele')
+        };
+
+        // Filtragem: Remove linhas onde o Peso está em branco/nulo
+        // Mantém 0 e outros valores numéricos
+        const linhasValidas = linhasRaw.slice(1).filter(linha => {
+            const col = linha.split(',');
+            const valorPeso = col[idx.peso]?.trim();
+            return valorPeso !== "" && valorPeso !== undefined && valorPeso !== null;
+        });
 
         let ultimaAlim = null, ultimaPesagem = null, ultimaTroca = null;
 
-        // Percorre as linhas (pulando cabeçalho)
-        for (let i = 1; i < linhas.length; i++) {
-            const col = linhas[i].split(',');
+        // Processa apenas as linhas que passaram no filtro de peso
+        linhasValidas.forEach(linha => {
+            const col = linha.split(',');
             const evento = col[idx.evento]?.trim().toLowerCase();
 
             if (evento === 'alimentação') ultimaAlim = col;
             if (evento === 'pesagem') ultimaPesagem = col;
             if (evento === 'troca de pele') ultimaTroca = col;
-        }
+        });
 
-        // Atualiza Card Alimentação
+        // Injeção nos Cards (Alimentação)
         if (ultimaAlim) {
             document.getElementById('bio-data-alim').innerText = ultimaAlim[idx.data];
             document.getElementById('bio-info-alim').innerText = `Peso Presa: ${ultimaAlim[idx.peso]}g`;
         }
 
-        // Atualiza Card Pesagem
+        // Injeção nos Cards (Pesagem)
         if (ultimaPesagem) {
             document.getElementById('bio-data-peso').innerText = ultimaPesagem[idx.data];
             document.getElementById('bio-info-peso').innerText = `Peso: ${ultimaPesagem[idx.peso]}g | Tam: ${ultimaPesagem[idx.comprimento]}cm`;
         }
 
-        // Atualiza Card Troca de Pele
+        // Injeção nos Cards (Troca de Pele)
         if (ultimaTroca) {
             document.getElementById('bio-data-pele').innerText = ultimaTroca[idx.data];
+            // Para troca de pele, o peso 0 é ignorado na exibição, focando no intervalo
             document.getElementById('bio-info-pele').innerText = `Intervalo: ${ultimaTroca[idx.tempoTroca]} dias`;
         }
 
@@ -623,6 +630,7 @@
     }
 }
 
+        
 // Inicialize a função junto com as outras
     carregarEspeciesCSV();
     buscarDadosThingSpeak();
