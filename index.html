@@ -610,15 +610,19 @@
     
     <script>
                 // Esta função é o começo para Galeria      DIV DE CIMA!!!!  
-        let currentSlide = 0;
-        let galleryImages = [];
-        let myCharts = []; // Armazena instâncias para limpar ao fechar
-        
+                
         const CHANNEL_ID = '3063889'; 
         const READ_API_KEY = 'K7D9RP8S6K883B89';
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQPIj53K6S1tfQLEssozqH55iGwWS0fHNft4fcf8CSzkmU0ZBqdSCYI8m30T_rkhg/pub?gid=1486357435&single=true&output=csv';
         const BIO_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQPIj53K6S1tfQLEssozqH55iGwWS0fHNft4fcf8CSzkmU0ZBqdSCYI8m30T_rkhg/pub?gid=1184403882&single=true&output=csv';
 
+        let currentSlide = 0;
+        let galleryImages = [];
+        let myCharts = []; // Armazena instâncias para limpar ao fechar
+        let helaImgIndex = 0;
+        let helaImgList = [];
+        let helaCarouselInterval = null;
+        
         async function carregarEspeciesCSV() {
             try {
                 const response = await fetch(CSV_URL);
@@ -768,42 +772,61 @@ async function carregarBioDados() {
         const tempoMudaIdx = cabecalho.indexOf('Tempo entre troca de pele');
         const imgIdx = cabecalho.indexOf('Image URL');
 
-        let ultimaAlim = null, ultimaPeso = null, ultimaMuda = null, ultimaImgUrl = null;
-        const lines = linhasRaw.slice(1);
+        // --- COLE ESTE BLOCO NO LUGAR ---
+let ultimaAlim = null, ultimaPeso = null, ultimaMuda = null;
+helaImgList = []; // Limpa a lista para atualização
 
-        lines.forEach(linha => {
-            const cols = linha.split(',');
-            const evento = cols[eventoIdx]?.trim().toLowerCase() || "";
-            const imgUrl = cols[imgIdx]?.trim();
+const lines = linhasRaw.slice(1);
+lines.forEach(linha => {
+    const cols = linha.split(',');
+    const evento = cols[eventoIdx]?.trim().toLowerCase() || "";
+    const imgUrl = cols[imgIdx]?.trim();
+    
+    if (evento.includes('alimentaç') || evento.includes('alimentacao')) ultimaAlim = cols;
+    if (evento === 'pesagem') ultimaPeso = cols;
+    if (evento === 'troca de pele') ultimaMuda = cols;
+    
+    // Coleta todos os links válidos da coluna Image URL
+    if (imgUrl && imgUrl.startsWith('http')) {
+        helaImgList.push(imgUrl);
+    }
+});
 
-            if (evento.includes('alimentaç') || evento.includes('alimentacao')) ultimaAlim = cols;
-            if (evento === 'pesagem') ultimaPeso = cols;
-            if (evento === 'troca de pele') ultimaMuda = cols;
-            if (imgUrl && imgUrl.startsWith('http')) ultimaImgUrl = imgUrl;
-        });
+// 1. Atualiza Textos com Formatação
+if (ultimaAlim) {
+    document.getElementById('bio-data-alim').innerText = formatarDataIngles(ultimaAlim[dataIdx]);
+    document.getElementById('bio-info-alim').innerText = `Weight: ${ultimaAlim[pesoIdx]}g`;
+}
+if (ultimaPeso) {
+    document.getElementById('bio-data-peso').innerText = formatarDataIngles(ultimaPeso[dataIdx]);
+    document.getElementById('bio-info-peso').innerText = `Weight: ${ultimaPeso[pesoIdx]}g`;
+}
+if (ultimaMuda) {
+    document.getElementById('bio-data-pele').innerText = formatarDataIngles(ultimaMuda[dataIdx]);
+    document.getElementById('bio-info-pele').innerText = `Interval: ${ultimaMuda[tempoMudaIdx]} days`;
+}
 
-        // 1. Atualiza Textos com Formatação
-        if (ultimaAlim) {
-            document.getElementById('bio-data-alim').innerText = formatarDataIngles(ultimaAlim[dataIdx]);
-            document.getElementById('bio-info-alim').innerText = `Weight: ${ultimaAlim[pesoIdx]}g`;
-        }
-        if (ultimaPeso) {
-            document.getElementById('bio-data-peso').innerText = formatarDataIngles(ultimaPeso[dataIdx]);
-            document.getElementById('bio-info-peso').innerText = `Weight: ${ultimaPeso[pesoIdx]}g`;
-        }
-        if (ultimaMuda) {
-            document.getElementById('bio-data-pele').innerText = formatarDataIngles(ultimaMuda[dataIdx]);
-            document.getElementById('bio-info-pele').innerText = `Interval: ${ultimaMuda[tempoMudaIdx]} days`;
-        }
+// 2. Inicia o Carrossel Automático
+if (helaImgList.length > 0) {
+    if (helaCarouselInterval) clearInterval(helaCarouselInterval);
+    
+    // Função interna para trocar a imagem
+    const trocarImagem = () => {
+        const imgEl = document.getElementById('hela-latest-img');
+        const loadingText = document.getElementById('img-loading-text');
+        
+        imgEl.src = helaImgList[helaImgIndex];
+        imgEl.style.display = 'block';
+        if (loadingText) loadingText.style.display = 'none';
+        
+        // Incrementa o índice para a próxima foto
+        helaImgIndex = (helaImgIndex + 1) % helaImgList.length;
+    };
 
-        // 2. Atualiza Imagem Lateral
-        if (ultimaImgUrl) {
-            const imgEl = document.getElementById('hela-latest-img');
-            imgEl.src = ultimaImgUrl;
-            imgEl.style.display = 'block';
-            const loadingText = document.getElementById('img-loading-text');
-            if (loadingText) loadingText.style.display = 'none';
-        }
+    trocarImagem(); // Exibe a primeira imediatamente
+    helaCarouselInterval = setInterval(trocarImagem, 15000); // Ciclo de 15 segundos
+}
+// --- FIM DO NOVO BLOCO ---
 
         window.cachedBioData = { lines, dataIdx, pesoIdx, eventoIdx, tempoMudaIdx };
     } catch (e) { console.error("Erro Bio-Data:", e); }
