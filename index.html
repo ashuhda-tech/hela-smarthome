@@ -151,10 +151,10 @@
         }
 
         .species-parameters {
-            display: none;
-            flex-wrap: wrap;
-            gap: 12px;
-        }}
+            display: none; /* Inicia oculto, a função JS altera para 'flex' */
+            flex-wrap: wrap;
+            gap: 12px;
+        }
 
         .param-chip {
             background: var(--card-hover);
@@ -362,10 +362,10 @@
             </select>
 
             <div id="parametrosEspecie" class="species-parameters">
-                <div class="param-chip">Temp: <span id="valTempMax">--</span>°C máx | <span id="valTempMin">--</span>°C min</div>
-                <div class="param-chip">Umid. Ar: <span id="valUmidArMax">--</span>% máx | <span id="valUmidArMin">--</span>% min</div>
-                <div class="param-chip">Sunlight: <span id="valSunlight">--</span></div>
-                <div class="param-chip">Umid. Solo: <span id="valUmidSoloMax">--</span>% máx | <span id="valUmidSoloMin">--</span>% min</div>
+                <div class="param-chip">Temp: <strong id="valTempMax">--</strong>°C máx | <strong id="valTempMin">--</strong>°C min</div>
+                <div class="param-chip">Umid. Ar: <strong id="valUmidArMax">--</strong>% máx | <strong id="valUmidArMin">--</strong>% min</div>
+                <div class="param-chip">Sunlight: <strong id="valSunlight">--</strong></div>
+                <div class="param-chip">Umid. Solo: <strong id="valUmidSoloMax">--</strong>% máx | <strong id="valUmidSoloMin">--</strong>% min</div>
             </div>
         </div>
     </div>
@@ -453,16 +453,20 @@
 
                 linhas.forEach(linha => {
                     const colunas = linha.split(',');
-                    if (colunas.length > 1) {
+                    if (colunas.length > 5) { // Verifica se a linha tem dados suficientes
                         const option = document.createElement('option');
-                        option.value = colunas[1].trim().toLowerCase().replace(/ /g, '_');
-                        option.text = `${colunas[0].trim()} | ${colunas[1].trim()}`;
+                        option.value = colunas[0].trim().toLowerCase().replace(/ /g, '_'); // Scientific Name
+                        option.text = `${colunas[1].trim()} | ${colunas[0].trim()}`; // Common | Scientific
                         
-                        // Armazenando os dados das colunas do Excel
-                        option.dataset.tempMax = colunas[2] ? colunas[2].trim() : '--';
-                        option.dataset.tempMin = colunas[3] ? colunas[3].trim() : '--';
-                        option.dataset.umidMax = colunas[4] ? colunas[4].trim() : '--';
-                        option.dataset.umidMin = colunas[5] ? colunas[5].trim() : '--';
+                        // Mapeamento exato baseado na sua lista:
+                        option.dataset.imgUrl = colunas[2];
+                        option.dataset.tempMin = colunas[4];
+                        option.dataset.tempMax = colunas[5];
+                        option.dataset.umidArMin = colunas[6];
+                        option.dataset.umidArMax = colunas[7];
+                        option.dataset.sunlight = colunas[8]; // Sunlight
+                        option.dataset.umidSoloMin = colunas[9];
+                        option.dataset.umidSoloMax = colunas[10];
                         
                         seletor.appendChild(option);
                     }
@@ -501,21 +505,33 @@
             const seletor = document.getElementById('seletorEspecie');
             const selectedOption = seletor.options[seletor.selectedIndex];
             const listaParams = document.getElementById('parametrosEspecie');
+            const imgEspecie = document.getElementById('imgEspecie');
+            const imgPlaceholder = document.getElementById('imgPlaceholder');
 
-            if (selectedOption.value === "") {
+            if (!selectedOption || selectedOption.value === "") {
                 listaParams.style.display = 'none';
+                imgEspecie.style.display = 'none';
+                imgPlaceholder.style.display = 'block';
                 return;
             }
 
-            // Exibe o container dos chips
             listaParams.style.display = 'flex';
 
-            // Mapeia os dados salvos no dataset do option para os spans
+            // Atualização da Imagem
+            if (selectedOption.dataset.imgUrl) {
+                imgEspecie.src = selectedOption.dataset.imgUrl;
+                imgEspecie.style.display = 'block';
+                imgPlaceholder.style.display = 'none';
+            }
+
+            // Preenchimento dos Chips
             document.getElementById('valTempMax').innerText = selectedOption.dataset.tempMax || '--';
             document.getElementById('valTempMin').innerText = selectedOption.dataset.tempMin || '--';
-            
-            // Caso seu CSV tenha mais colunas, adicione aqui (ex: Umidade na coluna 4 e 5)
-            // document.getElementById('valUmidArMax').innerText = selectedOption.dataset.umidMax || '--';
+            document.getElementById('valUmidArMax').innerText = selectedOption.dataset.umidArMax || '--';
+            document.getElementById('valUmidArMin').innerText = selectedOption.dataset.umidArMin || '--';
+            document.getElementById('valSunlight').innerText = selectedOption.dataset.sunlight || '--';
+            document.getElementById('valUmidSoloMax').innerText = selectedOption.dataset.umidSoloMax || '--';
+            document.getElementById('valUmidSoloMin').innerText = selectedOption.dataset.umidSoloMin || '--';
         }
         carregarEspeciesCSV();
         buscarDadosThingSpeak();
