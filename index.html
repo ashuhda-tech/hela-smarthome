@@ -601,9 +601,9 @@
             const col = linha.split(',');
             const evento = col[idx.evento]?.trim().toLowerCase();
 
-            if (evento === 'Alimentacao') ultimaAlim = col;
-            if (evento === 'Pesagem') ultimaPesagem = col;
-            if (evento === 'Troca de Pele') ultimaTroca = col;
+            if (evento === 'alimentacao') ultimaAlim = col;
+            if (evento === 'pesagem') ultimaPesagem = col;
+            if (evento === 'troca de pele') ultimaTroca = col;
         });
 
         // Injeção nos Cards (Alimentação)
