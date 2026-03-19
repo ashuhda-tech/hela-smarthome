@@ -84,9 +84,9 @@
             background-color: var(--accent-dark); 
         }
 
-        .indicator.online { background-color: var(--status-ok); box-shadow: 0 0 8px var(--status-ok); }
-        .indicator.sync   { background-color: var(--status-process); box-shadow: 0 0 8px var(--status-process); }
-        .indicator.active { background-color: var(--status-warn); box-shadow: 0 0 8px var(--status-warn); }
+        .indicator.on { background-color: var(--status-ok); box-shadow: 0 0 8px var(--status-ok); }
+        .indicator.blue   { background-color: var(--status-process); box-shadow: 0 0 8px var(--status-process); }
+        .indicator.orange { background-color: var(--status-warn); box-shadow: 0 0 8px var(--status-warn); }
         .indicator.off    { background-color: var(--status-error); box-shadow: 0 0 8px var(--status-error); }
 
         /* --- Seleção de Espécie --- */
@@ -447,10 +447,10 @@
     </header>
 
     <div class="system-status">
-        <div class="status-badge"><div id="status-arduino" class="indicator online"></div> Arduino: Online</div>
-        <div class="status-badge"><div id="status-connected" class="indicator online"></div> Connected: Yes</div>
-        <div class="status-badge"><div id="status-data" class="indicator active"></div> Data Transfer: Yes</div>
-        <div class="status-badge"><div id="status-sync" class="indicator sync"></div> Sync: Yes</div>
+        <div class="status-badge"><div id="status-IOTdevice" class="indicator on"></div> Device: On</div>
+        <div class="status-badge"><div id="status-connected" class="indicator orange"></div> Connected: Stabilishing connection</div>
+        <div class="status-badge"><div id="status-sync" class="indicator blue"></div> Sync: Yes</div>
+        <div class="status-badge"><div id="status-data" class="indicator off"></div> Data Transfer: Off</div>
     </div>
 
     <div class="species-container">
