@@ -845,7 +845,7 @@ function abrirModalBioDados() {
     lines.forEach(l => {
         const c = l.split(',');
         const ev = c[eventoIdx]?.trim().toLowerCase() || "";
-        const dataPonto = c[dataIdx];
+        const dataPonto = formatarDataGrafico(c[dataIdx].trim());
 
         // Se for o nascimento, adiciona a data no início do eixo X de todos os gráficos
         if (ev === 'nascimento') {
@@ -902,10 +902,32 @@ function criarGrafico(id, label, data, color) {
     });
 }
 
-function fecharModalCharts() {
+    function fecharModalCharts() {
     document.getElementById('modalBioCharts').style.display = 'none';
     document.body.style.overflow = 'auto';
 }
+
+    function formatarDataGrafico(dataStr) {
+    if (!dataStr) return "";
+    
+    // Splits the raw CSV date. Assuming format is DD/MM/YYYY or DD/MM/YY
+    const partes = dataStr.split('/');
+    if (partes.length !== 3) return dataStr; // Failsafe: returns original if it can't parse
+
+    let dia = partes[0].padStart(2, '0');
+    let mes = parseInt(partes[1], 10);
+    let ano = partes[2];
+    
+    // Fixes 2-digit years if your Excel exports them that way
+    if (ano.length === 2) ano = "20" + ano; 
+
+    // Month abbreviations (You can change these to Portuguese like FEV, ABR, MAI if needed)
+    const meses = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    const mesAbbr = meses[mes - 1] || "XXX";
+
+    return `${dia} / ${mesAbbr} / ${ano}`;
+}
+        
 
 // Inicialização única
 carregarEspeciesCSV();
