@@ -529,59 +529,77 @@
             iframe.src = ''; 
             document.body.style.overflow = 'auto'; 
         }
+
         
-        async function carregarBioDados() {
-            try {
-                const response = await fetch(BIO_CSV_URL);
-                const data = await response.text();
-                const linhasRaw = data.split('\n').filter(line => line.trim() !== "");
-                const cabecalho = linhasRaw[0].split(',');
+        // Função auxiliar para formatar a data (Ex: 3/15/2026 -> 15 / MAR / 2026)
+function formatarDataIngles(dataStr) {
+    if (!dataStr || dataStr.includes("--")) return "-- / --- / ----";
+    
+    const data = new Date(dataStr);
+    if (isNaN(data.getTime())) return dataStr; // Retorna original se falhar
 
-                const idx = {
-                    data: cabecalho.indexOf('Data'),
-                    peso: cabecalho.indexOf('Peso'),
-                    evento: cabecalho.indexOf('Evento'),
-                    comprimento: cabecalho.indexOf('Comprimento'),
-                    tempoTroca: cabecalho.indexOf('Tempo entre troca de pele')
-                };
+    const meses = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = meses[data.getMonth()];
+    const ano = data.getFullYear();
 
-                const linhasValidas = linhasRaw.slice(1).filter(linha => {
-                    const col = linha.split(',');
-                    const valorPeso = col[idx.peso]?.trim();
-                    return valorPeso !== "" && valorPeso !== undefined && valorPeso !== null;
-                });
+    return `${dia} / ${mes} / ${ano}`;
+}
 
-                let ultimaAlim = null, ultimaPesagem = null, ultimaTroca = null;
+async function carregarBioDados() {
+    try {
+        const response = await fetch(BIO_CSV_URL);
+        const data = await response.text();
+        const linhasRaw = data.split('\n').filter(line => line.trim() !== "");
+        const cabecalho = linhasRaw[0].split(',');
 
-                linhasValidas.forEach(linha => {
-                    const col = linha.split(',');
-                    const evento = col[idx.evento]?.trim().toLowerCase();
+        const idx = {
+            data: cabecalho.indexOf('Data'),
+            peso: cabecalho.indexOf('Peso'),
+            evento: cabecalho.indexOf('Evento'),
+            comprimento: cabecalho.indexOf('Comprimento'),
+            tempoTroca: cabecalho.indexOf('Tempo entre troca de pele')
+        };
 
-                    // Ajuste para reconhecer termos em PT-BR do seu CSV original
-                    if (evento === 'alimentacao' || evento === 'alimentação') ultimaAlim = col;
-                    if (evento === 'pesagem') ultimaPesagem = col;
-                    if (evento === 'troca de pele') ultimaTroca = col;
-                });
+        const linhasValidas = linhasRaw.slice(1).filter(linha => {
+            const col = linha.split(',');
+            const valorPeso = col[idx.peso]?.trim();
+            return valorPeso !== "" && valorPeso !== undefined && valorPeso !== null;
+        });
 
-                if (ultimaAlim) {
-                    document.getElementById('bio-data-alim').innerText = ultimaAlim[idx.data];
-                    document.getElementById('bio-info-alim').innerText = `Prey Weight: ${ultimaAlim[idx.peso]}g`;
-                }
+        let ultimaAlim = null, ultimaPesagem = null, ultimaTroca = null;
 
-                if (ultimaPesagem) {
-                    document.getElementById('bio-data-peso').innerText = ultimaPesagem[idx.data];
-                    document.getElementById('bio-info-peso').innerText = `Weight: ${ultimaPesagem[idx.peso]}g | Size: ${ultimaPesagem[idx.comprimento]}cm`;
-                }
+        linhasValidas.forEach(linha => {
+            const col = linha.split(',');
+            const evento = col[idx.evento]?.trim().toLowerCase();
 
-                if (ultimaTroca) {
-                    document.getElementById('bio-data-pele').innerText = ultimaTroca[idx.data];
-                    document.getElementById('bio-info-pele').innerText = `Interval: ${ultimaTroca[idx.tempoTroca]} days`;
-                }
+            // Mapeamento baseado nos termos do seu CSV original
+            if (evento === 'alimentacao' || evento === 'alimentação') ultimaAlim = col;
+            if (evento === 'pesagem') ultimaPesagem = col;
+            if (evento === 'troca de pele') ultimaTroca = col;
+        });
 
-            } catch (error) {
-                console.error("Error processing Bio-Data:", error);
-            }
+        // Atualização dos Cards com a nova formatação de data
+        if (ultimaAlim) {
+            document.getElementById('bio-data-alim').innerText = formatarDataIngles(ultimaAlim[idx.data]);
+            document.getElementById('bio-info-alim').innerText = `Prey Weight: ${ultimaAlim[idx.peso]}g`;
         }
+
+        if (ultimaPesagem) {
+            document.getElementById('bio-data-peso').innerText = formatarDataIngles(ultimaPesagem[idx.data]);
+            document.getElementById('bio-info-peso').innerText = `Weight: ${ultimaPesagem[idx.peso]}g | Size: ${ultimaPesagem[idx.comprimento]}cm`;
+        }
+
+        if (ultimaTroca) {
+            document.getElementById('bio-data-pele').innerText = formatarDataIngles(ultimaTroca[idx.data]);
+            document.getElementById('bio-info-pele').innerText = `Interval: ${ultimaTroca[idx.tempoTroca]} days`;
+        }
+
+    } catch (error) {
+        console.error("Error processing Bio-Data:", error);
+    }
+}
 
         carregarEspeciesCSV();
         buscarDadosThingSpeak();
