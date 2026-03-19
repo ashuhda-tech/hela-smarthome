@@ -833,25 +833,34 @@ async function carregarBioDados() {
 
 function abrirModalBioDados() {
     const modal = document.getElementById('modalBioCharts');
-    if (!modal || !window.cachedBioData) return;
-    
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
 
     const { lines, dataIdx, pesoIdx, eventoIdx, tempoMudaIdx } = window.cachedBioData;
-    const dAlim = { labels: [], values: [] }, dPeso = { labels: [], values: [] }, dMuda = { labels: [], values: [] };
+    
+    const dAlim = { labels: [], values: [] };
+    const dPeso = { labels: [], values: [] };
+    const dMuda = { labels: [], values: [] };
 
     lines.forEach(l => {
         const c = l.split(',');
         const ev = c[eventoIdx]?.trim().toLowerCase() || "";
-        if (ev.includes('alimentaç') || ev.includes('alimentacao')) { 
-            dAlim.labels.push(c[dataIdx]); dAlim.values.push(parseFloat(c[pesoIdx])); 
+        const dataPonto = c[dataIdx];
+
+        // Se for o nascimento, adiciona a data no início do eixo X de todos os gráficos
+        if (ev === 'nascimento') {
+            dAlim.labels.push(dataPonto); dAlim.values.push(null);
+            dPeso.labels.push(dataPonto); dPeso.values.push(null);
+            dMuda.labels.push(dataPonto); dMuda.values.push(null);
         }
-        if (ev === 'pesagem') { 
-            dPeso.labels.push(c[dataIdx]); dPeso.values.push(parseFloat(c[pesoIdx])); 
+        else if (ev.includes('alimentaç') || ev.includes('alimentacao')) { 
+            dAlim.labels.push(dataPonto); dAlim.values.push(parseFloat(c[pesoIdx])); 
         }
-        if (ev === 'troca de pele') { 
-            dMuda.labels.push(c[dataIdx]); dMuda.values.push(parseFloat(c[tempoMudaIdx])); 
+        else if (ev === 'pesagem') { 
+            dPeso.labels.push(dataPonto); dPeso.values.push(parseFloat(c[pesoIdx])); 
+        }
+        else if (ev === 'troca de pele') { 
+            dMuda.labels.push(dataPonto); dMuda.values.push(parseFloat(c[tempoMudaIdx])); 
         }
     });
 
@@ -864,21 +873,31 @@ function abrirModalBioDados() {
 }
 
 function criarGrafico(id, label, data, color) {
-    const ctx = document.getElementById(id);
-    if (!ctx) return null;
-    return new Chart(ctx, {
+    return new Chart(document.getElementById(id), {
         type: 'line',
         data: {
             labels: data.labels,
-            datasets: [{ label, data: data.values, borderColor: color, backgroundColor: color+'22', fill: true, tension: 0.2 }]
+            datasets: [{ 
+                label: label, 
+                data: data.values, 
+                borderColor: color, 
+                backgroundColor: color+'22', 
+                fill: true, 
+                tension: 0.2,
+                spanGaps: true // Permite que a linha conecte mesmo com o "null" do nascimento
+            }]
         },
         options: {
-            responsive: true,
             scales: {
-                x: { ticks: { color: '#d1b38b' }, grid: { color: '#1f2937' } },
-                y: { ticks: { color: '#d1b38b' }, grid: { color: '#1f2937' } }
+                x: { 
+                    ticks: { color: '#d1b38b' } 
+                },
+                y: { 
+                    beginAtZero: true, // Força o eixo Y a começar do zero
+                    ticks: { color: '#d1b38b' } 
+                }
             },
-            plugins: { legend: { labels: { color: '#f4e9d8', font: { family: 'A760-Roman-Smc' } } } }
+            plugins: { legend: { labels: { color: '#f4e9d8' } } }
         }
     });
 }
