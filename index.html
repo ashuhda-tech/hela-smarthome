@@ -359,10 +359,8 @@
         
         <div class="species-details">
             <select id="seletorEspecie" onchange="atualizarEspecie()">
-                <option value="">Selecione a Espécie monitorada...</option>
-                <option value="python_regius">Ball Python | Python regius</option>
-                <option value="boa_constrictor">Jiboia | Boa constrictor</option>
-            </select>
+                <option value="">Carregando espécies...</option>
+            </select>
 
             <div id="parametrosEspecie" class="species-parameters">
                 <div class="param-chip">Temp: <span id="valTempMax">--</span>°C máx | <span id="valTempMin">--</span>°C min</div>
@@ -443,8 +441,37 @@
     <script>
         const CHANNEL_ID = '3063889'; 
         const READ_API_KEY = 'K7D9RP8S6K883B89';
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQPIj53K6S1tfQLEssozqH55iGwWS0fHNft4fcf8CSzkmU0ZBqdSCYI8m30T_rkhg/pub?gid=1486357435&single=true&output=csv';
 
-        async function buscarDadosThingSpeak() {
+        async function carregarEspeciesCSV() {
+            try {
+                const response = await fetch(CSV_URL);
+                const data = await response.text();
+                const linhas = data.split('\n').slice(1); // Pula o cabeçalho
+                const seletor = document.getElementById('seletorEspecie');
+                
+                seletor.innerHTML = '<option value="">Selecione a Espécie monitorada...</option>';
+
+                linhas.forEach(linha => {
+                    const colunas = linha.split(',');
+                    if (colunas.length > 1) {
+                        const nomeComum = colunas[0].trim();
+                        const nomeCientifico = colunas[1].trim();
+                        const option = document.createElement('option');
+                        option.value = nomeCientifico.toLowerCase().replace(/ /g, '_');
+                        option.text = `${nomeComum} | ${nomeCientifico}`;
+                        // Guardamos os parâmetros como atributos de dados para a função atualizarEspecie usar depois
+                        option.dataset.tempMax = colunas[2];
+                        option.dataset.tempMin = colunas[3];
+                        seletor.appendChild(option);
+                    }
+                });
+            } catch (error) {
+                console.error("Erro ao carregar CSV:", error);
+            }
+        }
+
+        async function buscarDadosThingSpeak() {
             const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds/last.json?api_key=${READ_API_KEY}`;
             try {
                 const response = await fetch(url);
@@ -471,8 +498,9 @@
 
         // ... Funções atualizarEspecie, abrirModal, fecharModal e renderizarGraficosBioDados permanecem iguais ...
 
-        buscarDadosThingSpeak();
-        setInterval(buscarDadosThingSpeak, 30000);
+        carregarEspeciesCSV();
+        buscarDadosThingSpeak();
+        setInterval(buscarDadosThingSpeak, 30000);
     </script>
 </body>
 </html>
