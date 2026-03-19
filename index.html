@@ -908,23 +908,26 @@ function criarGrafico(id, label, data, color) {
 }
 
     function formatarDataGrafico(dataStr) {
-    if (!dataStr) return "";
+    if (!dataStr || dataStr.trim() === "") return "";
     
-    // Splits the raw CSV date. Assuming format is DD/MM/YYYY or DD/MM/YY
-    const partes = dataStr.split('/');
-    if (partes.length !== 3) return dataStr; // Failsafe: returns original if it can't parse
+    // Divide a data do CSV (Mês/Dia/Ano)
+    const partes = dataStr.trim().split('/');
+    
+    if (partes.length !== 3) return ""; 
 
-    let dia = partes[0].padStart(2, '0');
-    let mes = parseInt(partes[1], 10);
+    let mesNum = parseInt(partes[0], 10); // O Mês agora é a primeira parte [0]
+    let dia = partes[1].padStart(2, '0'); // O Dia agora é a segunda parte [1]
     let ano = partes[2];
     
-    // Fixes 2-digit years if your Excel exports them that way
     if (ano.length === 2) ano = "20" + ano; 
 
-    // Month abbreviations (You can change these to Portuguese like FEV, ABR, MAI if needed)
+    // Abreviações
     const meses = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-    const mesAbbr = meses[mes - 1] || "XXX";
+    
+    // Pega a abreviação correta baseada no primeiro número do CSV
+    const mesAbbr = meses[mesNum - 1] || partes[0]; 
 
+    // Retorna no SEU padrão visual: Dia / Mes / Ano
     return `${dia} / ${mesAbbr} / ${ano}`;
 }
         
