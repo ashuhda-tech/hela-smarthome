@@ -370,6 +370,10 @@
         </div>
     </div>
 
+
+
+
+    
     <div class="cards-grid">
         <div class="data-card" onclick="abrirModalThingSpeak('Concentração de CO2 [ppm]', 5)">
             <h3>Concentração CO2</h3>
@@ -404,28 +408,39 @@
             <p class="value"><span id="rs-soil">---</span> %</p>
         </div>
 
+
+
+        
         <div class="bio-card-container">
             <div class="data-card bio-card" onclick="abrirModalBioDados()">
                 <h3 style="font-size: 1.5em; color: var(--accent-light); border-bottom: 2px solid var(--card-border); padding-bottom: 10px;">Bio-Dados Hela</h3>
+                
                 <div class="bio-grid">
-                    <div class="bio-data-point">
-                        <span>Última Alimentação</span>
-                        <strong>10/03/2026</strong> <br> Peso: 45g
-                    </div>
-                    <div class="bio-data-point">
-                        <span>Última Pesagem</span>
-                        <strong>10/03/2026</strong> <br> Peso: 850g
-                    </div>
-                    <div class="bio-data-point">
-                        <span>Última Troca de Pele</span>
-                        <strong>20/02/2026</strong> <br> Status: Completa
-                    </div>
-                </div>
+    <div class="bio-data-point">
+        <span>Última Alimentação</span>
+        <strong id="bio-data-alim">--/--/----</strong> <br> 
+        <small id="bio-info-alim">Peso: --g</small>
+    </div>
+    <div class="bio-data-point">
+        <span>Última Pesagem</span>
+        <strong id="bio-data-peso">--/--/----</strong> <br> 
+        <small id="bio-info-peso">Peso: --g</small>
+    </div>
+    <div class="bio-data-point">
+        <span>Última Troca de Pele</span>
+        <strong id="bio-data-pele">--/--/----</strong> <br> 
+        <small id="bio-info-pele">Status: --</small>
+    </div>
+</div>
                 <p style="margin-top: 15px; font-size: 0.9em; color: var(--accent-dark);">Clique para expandir gráficos históricos</p>
             </div>
         </div>
     </div>
 
+
+
+
+    
     <div class="camera-section">
         <h3 style="color: var(--accent-light); margin-top: 0; margin-bottom: 15px;">Monitoramento em Tempo Real | 360°</h3>
         <div class="camera-wrapper">
@@ -441,6 +456,7 @@
         const CHANNEL_ID = '3063889'; 
         const READ_API_KEY = 'K7D9RP8S6K883B89';
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQPIj53K6S1tfQLEssozqH55iGwWS0fHNft4fcf8CSzkmU0ZBqdSCYI8m30T_rkhg/pub?gid=1486357435&single=true&output=csv';
+        const BIO_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQPIj53K6S1tfQLEssozqH55iGwWS0fHNft4fcf8CSzkmU0ZBqdSCYI8m30T_rkhg/pub?gid=1184403882&single=true&output=csv';
 
         async function carregarEspeciesCSV() {
             try {
@@ -554,10 +570,66 @@
             iframe.src = ''; // Limpa o iframe para economizar recursos
             document.body.style.overflow = 'auto'; // Libera o scroll
         }
+        
+        async function carregarBioDados() {
+            try {
+                const response = await fetch(BIO_CSV_URL);
+                const data = await response.text();
+                // Divide as linhas e remove espaços vazios
+                const linhas = data.split('\n').filter(line => line.trim() !== "");
+                const cabecalho = linhas[0].split(',');
+                
+        // Mapeamento de índices baseado nas colunas solicitadas
+                const idx = {
+                    data: cabecalho.indexOf('Data'),
+                    peso: cabecalho.indexOf('Peso'),
+                    evento: cabecalho.indexOf('Evento'),
+                    comprimento: cabecalho.indexOf('Comprimento'),
+                    tempoTroca: cabecalho.indexOf('Tempo entre troca de pele')
+                };
 
-        carregarEspeciesCSV();
-        buscarDadosThingSpeak();
-        setInterval(buscarDadosThingSpeak, 30000);
+        let ultimaAlim = null, ultimaPesagem = null, ultimaTroca = null;
+
+        // Percorre as linhas (pulando cabeçalho)
+        for (let i = 1; i < linhas.length; i++) {
+            const col = linhas[i].split(',');
+            const evento = col[idx.evento]?.trim().toLowerCase();
+
+            if (evento === 'alimentação') ultimaAlim = col;
+            if (evento === 'pesagem') ultimaPesagem = col;
+            if (evento === 'troca de pele') ultimaTroca = col;
+        }
+
+        // Atualiza Card Alimentação
+        if (ultimaAlim) {
+            document.getElementById('bio-data-alim').innerText = ultimaAlim[idx.data];
+            document.getElementById('bio-info-alim').innerText = `Peso Presa: ${ultimaAlim[idx.peso]}g`;
+        }
+
+        // Atualiza Card Pesagem
+        if (ultimaPesagem) {
+            document.getElementById('bio-data-peso').innerText = ultimaPesagem[idx.data];
+            document.getElementById('bio-info-peso').innerText = `Peso: ${ultimaPesagem[idx.peso]}g | Tam: ${ultimaPesagem[idx.comprimento]}cm`;
+        }
+
+        // Atualiza Card Troca de Pele
+        if (ultimaTroca) {
+            document.getElementById('bio-data-pele').innerText = ultimaTroca[idx.data];
+            document.getElementById('bio-info-pele').innerText = `Intervalo: ${ultimaTroca[idx.tempoTroca]} dias`;
+        }
+
+    } catch (error) {
+        console.error("Erro ao processar Bio-Dados:", error);
+    }
+}
+
+// Inicialize a função junto com as outras
+    carregarEspeciesCSV();
+    buscarDadosThingSpeak();
+    carregarBioDados(); // Chamada inicial
+    setInterval(buscarDadosThingSpeak, 30000);
+    setInterval(carregarBioDados, 60000); // Atualiza bio-dados a cada 1 minuto
+        
     </script>
 
     
