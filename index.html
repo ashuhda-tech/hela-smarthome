@@ -151,11 +151,10 @@
         }
 
         .species-parameters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            display: none; 
-        }
+            display: none;
+            flex-wrap: wrap;
+            gap: 12px;
+        }}
 
         .param-chip {
             background: var(--card-hover);
@@ -455,14 +454,16 @@
                 linhas.forEach(linha => {
                     const colunas = linha.split(',');
                     if (colunas.length > 1) {
-                        const nomeComum = colunas[0].trim();
-                        const nomeCientifico = colunas[1].trim();
                         const option = document.createElement('option');
-                        option.value = nomeCientifico.toLowerCase().replace(/ /g, '_');
-                        option.text = `${nomeComum} | ${nomeCientifico}`;
-                        // Guardamos os parâmetros como atributos de dados para a função atualizarEspecie usar depois
-                        option.dataset.tempMax = colunas[2];
-                        option.dataset.tempMin = colunas[3];
+                        option.value = colunas[1].trim().toLowerCase().replace(/ /g, '_');
+                        option.text = `${colunas[0].trim()} | ${colunas[1].trim()}`;
+                        
+                        // Armazenando os dados das colunas do Excel
+                        option.dataset.tempMax = colunas[2] ? colunas[2].trim() : '--';
+                        option.dataset.tempMin = colunas[3] ? colunas[3].trim() : '--';
+                        option.dataset.umidMax = colunas[4] ? colunas[4].trim() : '--';
+                        option.dataset.umidMin = colunas[5] ? colunas[5].trim() : '--';
+                        
                         seletor.appendChild(option);
                     }
                 });
@@ -496,8 +497,26 @@
             }
         }
 
-        // ... Funções atualizarEspecie, abrirModal, fecharModal e renderizarGraficosBioDados permanecem iguais ...
+     function atualizarEspecie() {
+            const seletor = document.getElementById('seletorEspecie');
+            const selectedOption = seletor.options[seletor.selectedIndex];
+            const listaParams = document.getElementById('parametrosEspecie');
 
+            if (selectedOption.value === "") {
+                listaParams.style.display = 'none';
+                return;
+            }
+
+            // Exibe o container dos chips
+            listaParams.style.display = 'flex';
+
+            // Mapeia os dados salvos no dataset do option para os spans
+            document.getElementById('valTempMax').innerText = selectedOption.dataset.tempMax || '--';
+            document.getElementById('valTempMin').innerText = selectedOption.dataset.tempMin || '--';
+            
+            // Caso seu CSV tenha mais colunas, adicione aqui (ex: Umidade na coluna 4 e 5)
+            // document.getElementById('valUmidArMax').innerText = selectedOption.dataset.umidMax || '--';
+        }
         carregarEspeciesCSV();
         buscarDadosThingSpeak();
         setInterval(buscarDadosThingSpeak, 30000);
