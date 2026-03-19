@@ -208,28 +208,43 @@
     display: flex;
     gap: 20px;
     width: 100%;
-    margin-top: 20px;
-    /* Alinha os itens ao topo para que a altura do container seja definida pelo maior card (Bio-data) */
+    margin-bottom: 20px; /* Garante distância para o card da câmera abaixo */
     align-items: stretch; 
 }
 
-/* O Bio-data card ocupa todo o espaço horizontal disponível menos o que a imagem usar */
+/* O Bio-data card é flexível e empurra o espaço */
 .bio-card-wrapper { 
     flex: 1; 
     display: flex;
 }
 
-/* O wrapper da imagem terá apenas a largura necessária para a imagem proporcional */
+/* O wrapper da imagem ajusta apenas à largura que precisar */
 .image-card-wrapper { 
+    flex: 0 0 auto;
     display: flex;
-    flex: 0 0 auto; /* Não cresce, não encolhe além do conteúdo */
 }
 
-/* Card de Dados */
 .bio-card {
     width: 100%;
-    padding: 20px; /* Ajuste o padding conforme seu padrão */
-    box-sizing: border-box;
+}
+
+.image-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+.image-card img {
+    /* A trava que impede a foto 4k de explodir o site: */
+    max-height: 240px; 
+    width: auto;
+    object-fit: contain; /* Mantém proporção sem cortar */
+    display: block;
 }
 
 /* O Card de Imagem */
@@ -563,27 +578,33 @@
             <p class="value"><span id="rs-soil">---</span> %</p>
         </div>
 
-        <div class="bio-side-by-side">
-    <div class="bio-card-wrapper">
-        <div class="data-card bio-card" onclick="abrirModalBioDados()" style="cursor: pointer;">
-            <h3 style="font-size: 1.5em; color: var(--accent-light); border-bottom: 2px solid var(--card-border); padding-bottom: 10px;">Hela Bio-Data</h3>
-            <div class="bio-grid">
-                <div class="bio-data-point"><span>Last Feeding</span><strong id="bio-data-alim">--/--/----</strong><br><small id="bio-info-alim">Weight: --g</small></div>
-                <div class="bio-data-point"><span>Last Weighing</span><strong id="bio-data-peso">--/--/----</strong><br><small id="bio-info-peso">Weight: --g</small></div>
-                <div class="bio-data-point"><span>Last Shedding</span><strong id="bio-data-pele">--/--/----</strong><br><small id="bio-info-pele">Interval: -- days</small></div>
+<div class="bio-side-by-side">
+        <div class="bio-card-wrapper">
+            <div class="data-card bio-card" onclick="abrirModalBioDados()" style="cursor: pointer;">
+                <h3 style="font-size: 1.5em; color: var(--accent-light); border-bottom: 2px solid var(--card-border); padding-bottom: 10px;">Hela Bio-Data</h3>
+                <div class="bio-grid">
+                    <div class="bio-data-point"><span>Last Feeding</span><strong id="bio-data-alim">-- / --- / ----</strong><br><small id="bio-info-alim">Weight: --g</small></div>
+                    <div class="bio-data-point"><span>Last Weighing</span><strong id="bio-data-peso">-- / --- / ----</strong><br><small id="bio-info-peso">Weight: --g</small></div>
+                    <div class="bio-data-point"><span>Last Shedding</span><strong id="bio-data-pele">-- / --- / ----</strong><br><small id="bio-info-pele">Interval: -- days</small></div>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.8em; color: var(--accent-dark); opacity: 0.7;">Click to expand analytical view</p>
             </div>
-            <p style="margin-top: 15px; font-size: 0.8em; color: var(--accent-dark); opacity: 0.7;">Click to expand analytical view</p>
+        </div>
+
+        <div class="image-card-wrapper">
+            <div class="data-card image-card">
+                <img id="hela-latest-img" src="" alt="Hela" style="display:none;">
+                <p id="img-loading-text" style="color: var(--text-muted);">Fetching image...</p>
+            </div>
+        </div>
+    </div> 
+    <div class="data-card camera-card">
+        <h3>Real-Time Monitoring</h3>
+        <div class="camera-placeholder">
+            <span style="color: #6b7280;">Camera Feed Offline</span>
         </div>
     </div>
-
-    <div class="image-card-wrapper">
-        <div class="data-card image-card">
-            <img id="hela-latest-img" src="" alt="Hela" style="display:none;">
-            <p id="img-loading-text" style="color: var(--text-muted);">Fetching image...</p>
-        </div>
-    </div>
-</div>
-
+        
 <div id="modalBioCharts" class="modal-overlay">
     <div class="modal-content" style="max-width: 900px;">
         <span class="close-modal" onclick="fecharModalCharts()">&times;</span>
