@@ -758,6 +758,10 @@ function formatarDataIngles(dataStr) {
     return `${String(data.getDate()).padStart(2, '0')} / ${meses[data.getMonth()]} / ${data.getFullYear()}`;
 }
 
+// ============================================================================
+// 2. FUNÇÃO REVISADA: carregarBioDados (Apenas para o Carrossel de Imagens)
+// Substitua TODA a sua carregarBioDados atual por esta versão limpa.
+// ============================================================================
 async function carregarBioDados() {
     try {
         const response = await fetch(BIO_CSV_URL);
@@ -765,79 +769,75 @@ async function carregarBioDados() {
         const linhasRaw = text.split('\n').filter(l => l.trim() !== "");
         if (linhasRaw.length < 2) return;
 
-        const cabecalho = linhasRaw[0].split(',').map(h => h.trim());
-        const dataIdx = cabecalho.indexOf('Data');
-        const pesoIdx = cabecalho.indexOf('Peso');
-        const eventoIdx = cabecalho.indexOf('Evento');
-        const tempoMudaIdx = cabecalho.indexOf('Tempo entre troca de pele');
-        const imgIdx = cabecalho.indexOf('Image URL');
+        // Pega os índices para buscar apenas as imagens
+        const cabecalho = linhasRaw[0].split(',').map(h => h.trim().toLowerCase());
+        const imgIdx = cabecalho.indexOf('image url');
 
-        // --- COLE ESTE BLOCO NO LUGAR ---
-let ultimaAlim = null, ultimaPeso = null, ultimaMuda = null;
-helaImgList = []; // Limpa a lista para atualização
+        helaImgList = []; // Limpa a variável global do carrossel
 
-const lines = linhasRaw.slice(1);
-lines.forEach(linha => {
-    const cols = linha.split(',').map(c => c.trim());
-    const evento = cols[eventoIdx]?.trim().toLowerCase() || "";
-    const imgUrl = cols[imgIdx]?.trim();
-    
-    if (evento ==='alimentacao') ultimaAlim = cols;
-    if (evento === 'pesagem') ultimaPeso = cols;
-    if (evento === 'troca de pele') ultimaMuda = cols;
-    
-    // Coleta todos os links válidos da coluna Image URL
-    if (imgUrl && imgUrl.startsWith('http')) {
-        helaImgList.push(imgUrl);
-    }
-});
+        const lines = linhasRaw.slice(1);
+        lines.forEach(linha => {
+            // Regex para evitar problemas com vírgulas no meio de textos do CSV
+            const cols = linha.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)?.map(c => c.replace(/"/g, '').trim()) || [];
+            const imgUrl = cols[imgIdx];
+            
+            if (imgUrl && imgUrl.startsWith('http')) {
+                helaImgList.push(imgUrl);
+            }
+        });
 
-// --- NOVO CÓDIGO: EXTRAÇÃO VIA GRÁFICOS ---
-const atualizarCardComGrafico = (chartInstance, dateId, infoId, prefixo) => {
-    if (chartInstance && chartInstance.data.labels.length > 0) {
-        const labels = chartInstance.data.labels;
-        const data = chartInstance.data.datasets[0].data;
-        
-        // Pega o último índice (ponto mais recente do gráfico)
-        const ultimoIndex = labels.length - 1;
-        const ultimaData = labels[ultimoIndex];
-        const ultimoValor = data[ultimoIndex];
-
-        // Atualiza o HTML (Formata a data se necessário)
-        document.getElementById(dateId).innerText = ultimaData;
-        document.getElementById(infoId).innerText = `${prefixo}: ${ultimoValor}${prefixo === 'Interval' ? ' days' : 'g'}`;
-    }
-};
-
-// Executa a atualização para cada um dos 3 gráficos
-atualizarCardComGrafico(window.chartAlimentacao, 'bio-data-alim', 'bio-info-alim', 'Weight');
-atualizarCardComGrafico(window.chartPeso, 'bio-data-peso', 'bio-info-peso', 'Weight');
-atualizarCardComGrafico(window.chartPele, 'bio-data-pele', 'bio-info-pele', 'Interval');
-
-// 2. Inicia o Carrossel Automático
-if (helaImgList.length > 0) {
-    if (helaCarouselInterval) clearInterval(helaCarouselInterval);
-    
-    // Função interna para trocar a imagem
-    const trocarImagem = () => {
+        // Inicia a rotação de imagens laterais (15 segundos)
         const imgEl = document.getElementById('hela-latest-img');
-        const loadingText = document.getElementById('img-loading-text');
-        
-        imgEl.src = helaImgList[helaImgIndex];
-        imgEl.style.display = 'block';
-        if (loadingText) loadingText.style.display = 'none';
-        
-        // Incrementa o índice para a próxima foto
-        helaImgIndex = (helaImgIndex + 1) % helaImgList.length;
+        if (helaImgList.length > 0 && imgEl) {
+            if (helaCarouselInterval) clearInterval(helaCarouselInterval);
+            
+            const rodarCarrossel = () => {
+                imgEl.src = helaImgList[helaImgIndex];
+                imgEl.style.display = 'block';
+                const loadingText = document.getElementById('img-loading-text');
+                if (loadingText) loadingText.style.display = 'none';
+                
+                helaImgIndex = (helaImgIndex + 1) % helaImgList.length;
+            };
+
+            rodarCarrossel(); 
+            helaCarouselInterval = setInterval(rodarCarrossel, 15000);
+        }
+    } catch (e) {
+        console.error("Erro no processamento do carrossel do BioDados:", e);
+    }
+}
+// ============================================================================
+// 1. NOVA FUNÇÃO: Atualiza os textos dos cards lendo os gráficos já renderizados
+// Cole esta função solta no seu script, fora de outras funções.
+// ============================================================================
+function atualizarCardsBioData() {
+    const atualizarCardComGrafico = (chartInstance, dateId, infoId, prefixo) => {
+        // A verificação abaixo garante que o gráfico existe e possui dados antes de tentar ler
+        if (chartInstance && chartInstance.data && chartInstance.data.labels.length > 0) {
+            const labels = chartInstance.data.labels;
+            const data = chartInstance.data.datasets[0].data;
+            
+            // Pega o último ponto do gráfico (o dado mais recente)
+            const ultimoIndex = labels.length - 1;
+            const ultimaData = labels[ultimoIndex];
+            const ultimoValor = data[ultimoIndex];
+
+            // Atualiza o portal
+            document.getElementById(dateId).innerText = ultimaData;
+            
+            // Define se a métrica é em dias (days) ou gramas (g)
+            const sufixo = prefixo === 'Interval' ? ' days' : 'g';
+            document.getElementById(infoId).innerText = `${prefixo}: ${ultimoValor}${sufixo}`;
+        } else {
+            console.warn(`Aguardando dados do gráfico para atualizar o card: ${dateId}`);
+        }
     };
 
-    trocarImagem(); // Exibe a primeira imediatamente
-    helaCarouselInterval = setInterval(trocarImagem, 15000); // Ciclo de 15 segundos
-}
-// --- FIM DO NOVO BLOCO ---
-
-        window.cachedBioData = { lines, dataIdx, pesoIdx, eventoIdx, tempoMudaIdx };
-    } catch (e) { console.error("Erro Bio-Data:", e); }
+    // Executa a extração para as 3 instâncias globais dos seus gráficos
+    atualizarCardComGrafico(window.chartAlimentacao, 'bio-data-alim', 'bio-info-alim', 'Weight');
+    atualizarCardComGrafico(window.chartPeso, 'bio-data-peso', 'bio-info-peso', 'Weight');
+    atualizarCardComGrafico(window.chartPele, 'bio-data-pele', 'bio-info-pele', 'Interval');
 }
 
 function abrirModalBioDados() {
