@@ -782,7 +782,7 @@ lines.forEach(linha => {
     const evento = cols[eventoIdx]?.trim().toLowerCase() || "";
     const imgUrl = cols[imgIdx]?.trim();
     
-    if (evento.includes('alimentaç') || evento.includes('alimentacao')) ultimaAlim = cols;
+    if (evento ==='alimentacao') ultimaAlim = cols;
     if (evento === 'pesagem') ultimaPeso = cols;
     if (evento === 'troca de pele') ultimaMuda = cols;
     
