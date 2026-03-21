@@ -778,7 +778,7 @@ helaImgList = []; // Limpa a lista para atualização
 
 const lines = linhasRaw.slice(1);
 lines.forEach(linha => {
-    const cols = linha.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)?.map(c => c.replace(/"/g, '').trim()) || [];
+    const cols = linha.split(',').map(c => c.trim());
     const evento = cols[eventoIdx]?.trim().toLowerCase() || "";
     const imgUrl = cols[imgIdx]?.trim();
     
