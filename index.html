@@ -792,19 +792,27 @@ lines.forEach(linha => {
     }
 });
 
-// 1. Atualiza Textos com Formatação
-if (ultimaAlim) {
-    document.getElementById('bio-data-alim').innerText = formatarDataIngles(ultimaAlim[dataIdx]);
-    document.getElementById('bio-info-alim').innerText = `Weight: ${ultimaAlim[pesoIdx]}g`;
-}
-if (ultimaPeso) {
-    document.getElementById('bio-data-peso').innerText = formatarDataIngles(ultimaPeso[dataIdx]);
-    document.getElementById('bio-info-peso').innerText = `Weight: ${ultimaPeso[pesoIdx]}g`;
-}
-if (ultimaMuda) {
-    document.getElementById('bio-data-pele').innerText = formatarDataIngles(ultimaMuda[dataIdx]);
-    document.getElementById('bio-info-pele').innerText = `Interval: ${ultimaMuda[tempoMudaIdx]} days`;
-}
+// --- NOVO CÓDIGO: EXTRAÇÃO VIA GRÁFICOS ---
+const atualizarCardComGrafico = (chartInstance, dateId, infoId, prefixo) => {
+    if (chartInstance && chartInstance.data.labels.length > 0) {
+        const labels = chartInstance.data.labels;
+        const data = chartInstance.data.datasets[0].data;
+        
+        // Pega o último índice (ponto mais recente do gráfico)
+        const ultimoIndex = labels.length - 1;
+        const ultimaData = labels[ultimoIndex];
+        const ultimoValor = data[ultimoIndex];
+
+        // Atualiza o HTML (Formata a data se necessário)
+        document.getElementById(dateId).innerText = ultimaData;
+        document.getElementById(infoId).innerText = `${prefixo}: ${ultimoValor}${prefixo === 'Interval' ? ' days' : 'g'}`;
+    }
+};
+
+// Executa a atualização para cada um dos 3 gráficos
+atualizarCardComGrafico(window.chartAlimentacao, 'bio-data-alim', 'bio-info-alim', 'Weight');
+atualizarCardComGrafico(window.chartPeso, 'bio-data-peso', 'bio-info-peso', 'Weight');
+atualizarCardComGrafico(window.chartPele, 'bio-data-pele', 'bio-info-pele', 'Interval');
 
 // 2. Inicia o Carrossel Automático
 if (helaImgList.length > 0) {
